@@ -1,0 +1,287 @@
+[
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.7991634, "lng": -73.9670243 },
+      "viewport": {
+        "northeast": { "lat": 40.8005201302915, "lng": -73.9655755197085 },
+        "southwest": { "lat": 40.7978221697085, "lng": -73.96827348029151 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    "name": "Papa Johns Pizza",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 3024,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/102106617906117817899\">Mark Loftin</a>"],
+        "photo_reference": "AeJbb3eLy9Ym4C0FtYRHq2NEpUPrcMX9te2nSBDtJ64FEKgdwvsDI_0GHo91AYWhABFOwqP5q2-smByuP7wNKxFnFCv24Se4ttTxn35MBPo5Hq6Ld5SH0GhlGusaEwaMTipVja4janFPMbe81ziAmoe5ii_sI_NG1oJ9sU-rZtfIkAXLWiwo",
+        "width": 4032
+      }
+    ],
+    "place_id": "ChIJDfStQiT2wokRQoR_hqOdk7A",
+    "plus_code": { "compound_code": "Q2XM+M5 New York, NY, USA", "global_code": "87G8Q2XM+M5" },
+    "price_level": 1,
+    "rating": 3.9,
+    "reference": "ChIJDfStQiT2wokRQoR_hqOdk7A",
+    "scope": "GOOGLE",
+    "types": ["restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 307,
+    "vicinity": "896 Amsterdam Avenue, New York"
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.8000976, "lng": -73.9662705 },
+      "viewport": {
+        "northeast": { "lat": 40.80139578029151, "lng": -73.96480496970848 },
+        "southwest": { "lat": 40.79869781970852, "lng": -73.96750293029149 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    "name": "Ranchito",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 3456,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/100763627683690755031\">Ranchito</a>"],
+        "photo_reference": "AeJbb3ez0xCDCwDGuhqLizgoBCYWX4UlbilCXe6RTPlpZg9EDMNydj6S2IJ65jNWdWTj3erbD79O-6M_ZrQ838MCjKCHFqPbSY8DotaxB6kKMnkxk4wrqqk2QfC4FgLzNVzph0OBd9Ho-Pw3eWI4apVNaon8vKGXMF2KVqJSPgpYEF37tG68",
+        "width": 4608
+      }
+    ],
+    "place_id": "ChIJ2RaqjyT2wokRAXmpz7b_O9g",
+    "plus_code": { "compound_code": "R22M+2F New York, NY, USA", "global_code": "87G8R22M+2F" },
+    "rating": 4,
+    "reference": "ChIJ2RaqjyT2wokRAXmpz7b_O9g",
+    "scope": "GOOGLE",
+    "types": ["meal_delivery", "bar", "restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 88,
+    "vicinity": "924 Amsterdam Avenue, New York"
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.7999805, "lng": -73.9663666 },
+      "viewport": {
+        "northeast": { "lat": 40.8012766302915, "lng": -73.96489871970849 },
+        "southwest": { "lat": 40.7985786697085, "lng": -73.9675966802915 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    "name": "The Tang",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 3024,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/115479070391090198326\">The Tang</a>"],
+        "photo_reference": "AeJbb3e0ERqlMQTkch5B_kKlt7uD4CM3h93wHvIgMo9rId5a4I1EjLNJpHDo77SJeGdf6kXzlhVGtz8hsW0UQ9WozhQom0KGCiCtT-p_LhA7srHxN5wwKQINRVclvQbrSmhp30HjUawle3UjlQHq6QpSDsDdUOaXOkZFTpfuwCFfEj0LoHt2",
+        "width": 4032
+      }
+    ],
+    "place_id": "ChIJF-agVLv3wokRLDjAuogLDjs",
+    "plus_code": { "compound_code": "Q2XM+XF New York, NY, USA", "global_code": "87G8Q2XM+XF" },
+    "price_level": 2,
+    "rating": 4.3,
+    "reference": "ChIJF-agVLv3wokRLDjAuogLDjs",
+    "scope": "GOOGLE",
+    "types": ["bar", "restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 157,
+    "vicinity": "920 Amsterdam Avenue, New York"
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.79905579999999, "lng": -73.96712959999999 },
+      "viewport": {
+        "northeast": { "lat": 40.80051333029149, "lng": -73.96565781970848 },
+        "southwest": { "lat": 40.79781536970849, "lng": -73.9683557802915 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    "name": "Casa Mexicana",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 1960,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/104958451904867158126\">David Bruno</a>"],
+        "photo_reference": "AeJbb3e9PHe1OiALjc06L2kBvta-YbJXQwP9QsbCI1sNU7PyrQv9O0-g6BXGduDtNKqBvjiY6ww9pa0KGP4AyJKTBy5Q5u9Ut7f4kONWss9nWCQzxtCtEWP5SzoWJ1XRzTzWOQYZ_SAGPp-BRjhHDk7f1rev2MTGqv3S6gr12VyeCDsOwi04",
+        "width": 3744
+      }
+    ],
+    "place_id": "ChIJPWYFQiT2wokRlLvHxjeAlSw",
+    "plus_code": { "compound_code": "Q2XM+J4 New York, NY, USA", "global_code": "87G8Q2XM+J4" },
+    "price_level": 2,
+    "rating": 4.4,
+    "reference": "ChIJPWYFQiT2wokRlLvHxjeAlSw",
+    "scope": "GOOGLE",
+    "types": ["restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 159,
+    "vicinity": "894 Amsterdam Avenue, New York"
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.7989636, "lng": -73.9671092 },
+      "viewport": {
+        "northeast": { "lat": 40.8003054802915, "lng": -73.9656348697085 },
+        "southwest": { "lat": 40.7976075197085, "lng": -73.9683328302915 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/cafe-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/cafe_pinlet",
+    "name": "Dunkin'",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 800,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/110290376464170759965\">Dunkin&#39;</a>"],
+        "photo_reference": "AeJbb3fdXxIWVRtXBibJ2aIrOwdAZ-WlTeHXho_eXDVfgGi0PhB5lumJ_jxIuQnjSKhbLf3VJ0LREDQfPY6lfWjGu_OeUfeIH9SDEBM0nWghdlwau0rTNVu4uToDFgAn1ds0WFjuBSEXQtI4oMFZNbhx6wvahibtmhbxoumJMIxjxitoqQSw",
+        "width": 1143
+      }
+    ],
+    "place_id": "ChIJy5qLcEj3wokR9AYYZrv-hsw",
+    "plus_code": { "compound_code": "Q2XM+H5 New York, NY, USA", "global_code": "87G8Q2XM+H5" },
+    "price_level": 1,
+    "rating": 4.2,
+    "reference": "ChIJy5qLcEj3wokR9AYYZrv-hsw",
+    "scope": "GOOGLE",
+    "types": ["cafe", "meal_takeaway", "bakery", "store", "restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 93,
+    "vicinity": "104th And Amsterdam, 896 Amsterdam Avenue, New York"
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.8001666, "lng": -73.9661934 },
+      "viewport": {
+        "northeast": { "lat": 40.80147118029149, "lng": -73.96473831970849 },
+        "southwest": { "lat": 40.79877321970849, "lng": -73.96743628029151 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    "name": "Miss Saigon",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 3024,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/108509950747241888741\">yddub bud</a>"],
+        "photo_reference": "AeJbb3dIa5-HJiD_dJaxUY59EX-DsDOONYij_dOS6LrLNPvqsIRLYWopYu-bTTFDLvSZn-joANtGpEBvUjm9TwixXG_OblAKDWOcSJe2yFBjFl4lo_L3-y7w67RireeC-SQyMr3cYlD4j4V2q3K4RETOwwXw6c6caoPXGN3SnbAibQXiVf5X",
+        "width": 4032
+      }
+    ],
+    "place_id": "ChIJF_1Nm-_3wokRZj4CR07wgGc",
+    "plus_code": { "compound_code": "R22M+3G New York, NY, USA", "global_code": "87G8R22M+3G" },
+    "price_level": 2,
+    "rating": 4.6,
+    "reference": "ChIJF_1Nm-_3wokRZj4CR07wgGc",
+    "scope": "GOOGLE",
+    "types": ["restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 76,
+    "vicinity": "928 Amsterdam Avenue, New York"
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.80019619999999, "lng": -73.9663128 },
+      "viewport": {
+        "northeast": { "lat": 40.8014784802915, "lng": -73.9648035197085 },
+        "southwest": { "lat": 40.7987805197085, "lng": -73.96750148029152 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    "name": "GerSushi",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 3665,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/105166585029573077222\">GerSushi</a>"],
+        "photo_reference": "AeJbb3fRFjADQ9cO1CxMVq-9YrZucBBk6C9Kx1M8So3wGObmZCN6AxsEsnKU5kfRpRa1xOc7SgHyY8-4s2-37tv-NSXu389TrT2zdZRWTo_rGXvGlsVBgu4pamzhaBX1camK6jcR5mZiI_fsuAHC8MQu4RnLG1AqZitXyNWG3x4ke3wyGdpP",
+        "width": 3000
+      }
+    ],
+    "place_id": "ChIJTRx-8Hn1wokRV0OccCNkwxY",
+    "plus_code": { "compound_code": "R22M+3F New York, NY, USA", "global_code": "87G8R22M+3F" },
+    "rating": 4.6,
+    "reference": "ChIJTRx-8Hn1wokRV0OccCNkwxY",
+    "scope": "GOOGLE",
+    "types": ["meal_takeaway", "restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 69,
+    "vicinity": "926 Amsterdam Avenue, New York"
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.79880959999999, "lng": -73.9671805 },
+      "viewport": {
+        "northeast": { "lat": 40.8001190302915, "lng": -73.96571741970851 },
+        "southwest": { "lat": 40.7974210697085, "lng": -73.96841538029152 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    "name": "New Kam Lai",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 2778,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/106592850259931569273\">New Kam Lai</a>"],
+        "photo_reference": "AeJbb3eqA9hVvc10MqV034DlU5VXoFr2eRBqFkk6ZuGXipchP0qUz5rAq4zvERjwfzQQRVWOYwhlGYxJbltCbBt332AoK2kofr51677zm-3C_08Z3njOEUTB2WgX5iYBnyGPNgo_dhCVLbYFOL2sjx7ygViPLh5e7LU0v9-yemJxOlk5YP-e",
+        "width": 1284
+      }
+    ],
+    "place_id": "ChIJYaJViBX3wokRC88rl8aJmes",
+    "plus_code": { "compound_code": "Q2XM+G4 New York, NY, USA", "global_code": "87G8Q2XM+G4" },
+    "rating": 3.9,
+    "reference": "ChIJYaJViBX3wokRC88rl8aJmes",
+    "scope": "GOOGLE",
+    "types": ["restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 373,
+    "vicinity": "890 Amsterdam Avenue, New York"
+  },
+  {
+    "business_status": "OPERATIONAL",
+    "geometry": {
+      "location": { "lat": 40.80009769999999, "lng": -73.9657474 },
+      "viewport": {
+        "northeast": { "lat": 40.80148183029149, "lng": -73.96448241970849 },
+        "southwest": { "lat": 40.79878386970849, "lng": -73.96718038029151 }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    "icon_background_color": "#FF9E67",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    "name": "Grain House",
+    "opening_hours": { "open_now": true },
+    "photos": [
+      {
+        "height": 421,
+        "html_attributions": ["<a href=\"https://maps.google.com/maps/contrib/107128844282621929709\">Grain House</a>"],
+        "photo_reference": "AeJbb3d8q9-W1nigDxRtr5s8jrqx3Sv4dmk5bbicCUh24LvdxjUeCJ_EZSDOBhcfswwDh9iiw1LjnABTj3P_oxKHngWAD_YIarVQtm4Am5Ais_CQDOP7_BZ78MRJHSqx56OdisZQ8VyCxTXDoYyaDX1ke8jK5oAHxTSDKHUNVWb32EmXQTpJ",
+        "width": 657
+      }
+    ],
+    "place_id": "ChIJVVUZgyT2wokRn-wwz_4ndYQ",
+    "plus_code": { "compound_code": "R22M+2P New York, NY, USA", "global_code": "87G8R22M+2P" },
+    "price_level": 2,
+    "rating": 4,
+    "reference": "ChIJVVUZgyT2wokRn-wwz_4ndYQ",
+    "scope": "GOOGLE",
+    "types": ["meal_takeaway", "restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 161,
+    "vicinity": "929 Amsterdam Avenue, New York"
+  }
+]

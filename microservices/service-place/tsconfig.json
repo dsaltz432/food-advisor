@@ -1,0 +1,19 @@
+{
+  "include": ["tsconfig.json", "./src", "./tests", "typings"],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "removeComments": true,
+    "rootDir": "./",
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2020",
+    "typeRoots": ["typings", "./node_modules/@types"]
+  }
+}

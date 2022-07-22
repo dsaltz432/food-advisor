@@ -1,0 +1,11 @@
+.idea
+/node_modules/
+/yarn-error.log
+/.DS_Store
+/mongo-volume
+dump.rdb
+dist
+
+# ignore all env files except example.env
+*.env
+!example.env

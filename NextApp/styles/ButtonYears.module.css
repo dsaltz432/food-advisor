@@ -1,0 +1,21 @@
+.baseButton {
+  background-color: rgb(119, 203, 241);
+  color: white;
+  font-size: 20px;
+  padding: 10px 60px;
+  border-radius: 5px;
+  margin: 10px 10px;
+  cursor: pointer;
+}
+
+.buttonNotSelected {
+  border: none;
+}
+
+.buttonSelected {
+  border: 3px solid black;
+}
+
+.yearsContainer {
+  margin-bottom: 100px;
+}
