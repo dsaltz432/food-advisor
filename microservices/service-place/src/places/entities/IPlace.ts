@@ -16,11 +16,17 @@ export interface IPlace {
   openingHours: { openNow: true };
   numPhotos: number;
   priceLevel: number;
-  rating: number | null;
+  rating: number;
   scope: string;
   types: string[];
-  userRatingsTotal: number | null;
+  userRatingsTotal: number;
   vicinity: string;
+  googleMapsUrl: string;
+  // computedMetrics: {
+  //   localGuidePercentage: number;
+  //   adjustedRating: number;
+  // };
+  computedMetrics?: any;
   audit: {
     createdDate: Date;
     updatedDate: Date | null;
@@ -46,6 +52,12 @@ export const PlaceSchema = new Schema<IPlace>(
     types: { type: [String], required: true },
     userRatingsTotal: { type: Number, required: true },
     vicinity: { type: String, required: true },
+    googleMapsUrl: { type: String, required: true },
+    // computedMetrics: {
+    //   localGuidePercentage: { type: Number, required: true },
+    //   adjustedRating: { type: Number, required: true },
+    // },
+    computedMetrics: { type: {}, required: false },
     audit: {
       createdDate: { type: Date, required: false, default: () => new Date() },
       updatedDate: { type: Date, required: false, default: null },

@@ -1,15 +1,11 @@
 import _ from 'lodash';
-import { createUUID } from '../core/utils';
-import { IRawPlace } from './entities/IRawPlace';
 import { IPlace } from './entities/IPlace';
 
-export const computePlaceScores = (results: IRawPlace[]): IPlace[] => {
-  const places = getPlacesFromResults(results);
-
+export const computePlaceScores = (places: IPlace[]): IPlace[] => {
   const filteredPlaces = places.filter(filterForFoodPlacesOnly);
 
-  // for now just sort by rating
-  return _.orderBy(filteredPlaces, 'rating');
+  // for now just sort by the adjusted rating
+  return _.orderBy(filteredPlaces, 'computedMetrics.adjustedRating');
 };
 
 const FOOD_PLACE_TYPES = [
@@ -40,34 +36,4 @@ const filterForFoodPlacesOnly = (place: IPlace) => {
   }
   console.log(`No match for place ${place._id} with types ${place.types}`);
   return false;
-};
-
-const getPlacesFromResults = (results: any[]): IPlace[] => {
-  const now = new Date();
-  const places = [];
-  for (const result of results) {
-    const place: IPlace = {
-      _id: createUUID(),
-      googlePlaceId: result.place_id,
-      googleReference: result.reference,
-      businessStatus: result.business_status,
-      name: result.name,
-      location: result.geometry.location,
-      vicinity: result.vicinity,
-      numPhotos: result.photos?.length ?? 0,
-      rating: result.rating ?? null,
-      userRatingsTotal: result.user_ratings_total ?? null,
-      types: result.types,
-      icon: result.icon,
-      scope: result.scope,
-      openingHours: result.openingHours,
-      priceLevel: result.price_level,
-      audit: {
-        createdDate: now,
-        updatedDate: null,
-      },
-    };
-    places.push(place);
-  }
-  return places;
 };

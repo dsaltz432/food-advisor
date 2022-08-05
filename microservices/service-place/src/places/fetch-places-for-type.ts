@@ -1,3 +1,4 @@
+import pMap from 'p-map';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { sleep } from '../core/utils';
 import { IRawPlace } from './entities/IRawPlace';
@@ -17,7 +18,7 @@ export const fetchPlacesForType = async (baseUrl: string, urlForLocation: string
 
     // make the request to google
     console.log(`Requesting nearby places for URL ${url}, requestNum=${requestNum}`);
-    const response = await fetchPlacesFromAPI(url);
+    const response = await fetchDataFromGoogleAPI(url);
 
     // based on the response, decide if we need to make additional requests
     if (response && response.status === 200 && response.data.status === 'OK') {
@@ -42,7 +43,30 @@ export const fetchPlacesForType = async (baseUrl: string, urlForLocation: string
   return allRawPlaces;
 };
 
-const fetchPlacesFromAPI = async (url: string): Promise<AxiosResponse | null> => {
+export const fetchPlaceDetailsForPlaceIds = async(googlePlaceIds: string[], baseUrl: string) => {
+
+  const urls = [];
+
+  for (const googlePlaceId of googlePlaceIds) {
+    const url = `${baseUrl}&place_id=${googlePlaceId}`;
+    urls.push(url);
+  }
+
+  const responses = await pMap(urls, fetchDataFromGoogleAPI, { concurrency: 10 });
+
+  const urlToGooglePlaceIdMap: Record<string,string> = {};
+
+  for (const [index, response] of responses.entries()) {
+    if (response && response.status === 200 && response.data.status === 'OK') {
+      const googlePlaceId = googlePlaceIds[index];
+      urlToGooglePlaceIdMap[googlePlaceId] = response?.data?.result?.url ?? null;
+    }
+  }
+
+  return urlToGooglePlaceIdMap;
+};
+
+const fetchDataFromGoogleAPI = async (url: string): Promise<AxiosResponse | null> => {
   try {
     const requestConfig: AxiosRequestConfig = {
       method: 'get',

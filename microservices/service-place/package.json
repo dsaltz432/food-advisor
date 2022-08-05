@@ -29,6 +29,9 @@
     "mongodb": "^3.5.8",
     "mongoose": "^6.4.5",
     "morgan": "^1.10.0",
+    "p-map": "^4.0.0",
+    "puppeteer": "^15.5.0",
+    "python-shell": "^3.0.1",
     "uuidv4": "^6.2.11"
   },
   "devDependencies": {

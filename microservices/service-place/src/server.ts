@@ -28,6 +28,7 @@ export const bootstrapService = async () => {
   webapp.start();
 };
 
+
 bootstrapService()
   .then(async () => {
     logger.info(`service-place started up using node version ${process.version}`);

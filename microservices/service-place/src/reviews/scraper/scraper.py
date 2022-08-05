@@ -1,0 +1,154 @@
+import json
+import os
+import time
+import sys
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+
+
+if (len(sys.argv)) != 3:
+    print('Must pass in the placeId and url as cmd line arguments')
+    print(sys.argv)
+    os._exit(1)
+
+placeId = sys.argv[1]
+url = sys.argv[2]
+print('Scraping reviews from url ', url)
+
+options = Options()
+options.headless = True
+driver = webdriver.Chrome(options=options)
+driver.get(url)
+time.sleep(3) # could convert this to a "wait until" thing later
+
+showReviewsXPath = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[2]/div/div[1]/span[1]/span/span[1]/span[2]/span[1]/button'
+
+def get_int(num):
+    return int(num.replace(',', ''))
+
+def get_total_reviews_for_place():
+    try:
+        return get_int(driver.find_element(By.XPATH, showReviewsXPath).text.split(" ")[0])
+    except:
+        print('Unable to find total_number_of_reviews. Assuming 0 reviews.')
+        os._exit(0) # Exit with code 0 so it doesn't throw an error
+
+total_number_of_reviews = get_total_reviews_for_place()
+
+# Then click on the button to load the All Reviews page
+driver.find_element(By.XPATH, showReviewsXPath).click()
+time.sleep(3) # could convert this to a "wait until" thing later
+
+# Find scrollable element
+scrollable_div = driver.find_element('xpath', '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]')
+
+# Scroll down the review sidebar until we've loaded all reviews for this place
+while True:
+
+    # Get current height
+    last_height = driver.execute_script("var height=arguments[0].scrollHeight;return height;", scrollable_div)
+
+    # Scroll down to bottom
+    driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', scrollable_div)
+
+    # Wait to load page
+    time.sleep(2)
+
+    # Get updated height
+    new_height = driver.execute_script("var height=arguments[0].scrollHeight;return height;", scrollable_div)
+
+    # Calculate new scroll height and compare with last scroll height
+    if new_height == last_height:
+        break
+
+    # Update last_height
+    last_height = new_height
+
+
+# Find all reviews that have the "More" button visible to expand the review text, and click each button to expand the text
+see_more_elements = driver.find_elements(By.CLASS_NAME, 'w8nwRe')
+for see_more_element in see_more_elements:
+    see_more_element.click()
+
+
+
+def is_local_guide(guideData):
+    if not guideData:
+        return False
+    else:
+        isLocalGuideTag = guideData.find_all('span')[0]
+        if isLocalGuideTag.has_attr('style') and 'display:none' in isLocalGuideTag['style']:
+            return False
+        else:
+            return True
+
+def get_num_total_reviews_for_user(guideData, isLocalGuide):
+    if not guideData:
+        return 0
+    else:
+        numReviewsPieces = guideData.find_all('span')[1].text.strip().split(' ')
+        if isLocalGuide:
+            if len(numReviewsPieces) == 3:
+                return get_int(numReviewsPieces[1])
+            else:
+                # this is a local guide with no reviews
+                return 0
+        else:
+            return get_int(numReviewsPieces[0])
+
+
+# Now that we've scrolled down the entire page, parse the HTML to get the review data
+
+soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+reviewBlobs = soup.find_all('div', {'data-review-id': True, 'class': 'jftiEf'})
+
+review_objects = []
+
+for reviewBlob in reviewBlobs:
+
+    review_object = {}
+
+    profileData = reviewBlob.find('div', {'class':['WNxzHc', 'qLhwHc']})
+
+    authorUrl = profileData.find('a')['href'].strip()
+    review_object['authorUrl'] = authorUrl
+
+    authorName = profileData.find('div', {'class': 'd4r55'}).text.strip()
+    review_object['authorName'] = authorName
+
+    guideData = reviewBlob.find('div', {'class': 'RfnDt'})
+
+    isLocalGuide = is_local_guide(guideData)
+    review_object['authorIsLocalGuide'] = isLocalGuide
+    review_object['authorNumReviews'] = get_num_total_reviews_for_user(guideData, isLocalGuide)
+
+    rating = reviewBlob.find('span', {'class': 'kvMYJc'})['aria-label'].strip().split(' ')[0]
+    review_object['rating'] = int(rating)
+
+    timeDescription = reviewBlob.find('span', {'class': 'rsqaWe'}).text.strip()
+    review_object['timeDescription'] = timeDescription
+
+    reviewText = reviewBlob.find('span', {'class': 'wiI7pd'}).text.strip()
+    review_object['text'] = reviewText
+
+    review_objects.append(review_object)
+
+
+driver.close()
+
+# Sanity check
+if total_number_of_reviews != len(review_objects):
+    print('Sanity check failed!. total_number_of_reviews=', total_number_of_reviews, ', len(review_objects)=', len(review_objects))
+
+
+# Save reviews to JSON file
+
+fileName = 'scraped-reviews/' + placeId + '.json'
+pathToJsonFile = os.path.join(os.path.dirname(__file__), fileName)
+
+with open(pathToJsonFile, 'w', encoding='utf-8') as f:
+    json.dump(review_objects, f, ensure_ascii=False, indent=4)
+    print('Finished saving', total_number_of_reviews, 'reviews to file', pathToJsonFile)

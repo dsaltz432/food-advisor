@@ -19,12 +19,3 @@ export const FOOD_PLACE_TYPES = [
   // 'supermarket',
   // 'tourist_attraction',
 ];
-
-export const getDataFromJsonFile = (filePath: string): any[] => {
-  try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch (e) {
-    console.error(`Unable to get data from path [${filePath}], ${e}`);
-    return [];
-  }
-};
