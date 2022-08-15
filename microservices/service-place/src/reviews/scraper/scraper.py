@@ -8,17 +8,18 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 
-if (len(sys.argv)) != 3:
+if (len(sys.argv)) != 4:
     print('Must pass in the placeId and url as cmd line arguments')
     print(sys.argv)
     os._exit(1)
 
 placeId = sys.argv[1]
 url = sys.argv[2]
-print('Scraping reviews from url ', url)
+headless = sys.argv[3] == 'true'
+print('Scraping reviews for place', placeId, ', URL', url, ', headless: ', headless)
 
 options = Options()
-options.headless = True
+options.headless = headless
 driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(3) # could convert this to a "wait until" thing later
@@ -29,10 +30,11 @@ def get_int(num):
     return int(num.replace(',', ''))
 
 def get_total_reviews_for_place():
+    elementText = driver.find_element(By.XPATH, showReviewsXPath).text
     try:
-        return get_int(driver.find_element(By.XPATH, showReviewsXPath).text.split(" ")[0])
+        return get_int(elementText.split(" ")[0])
     except:
-        print('Unable to find total_number_of_reviews. Assuming 0 reviews.')
+        print('Unable to find total_number_of_reviews. Assuming 0 reviews.', elementText)
         os._exit(0) # Exit with code 0 so it doesn't throw an error
 
 total_number_of_reviews = get_total_reviews_for_place()
@@ -54,7 +56,7 @@ while True:
     driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', scrollable_div)
 
     # Wait to load page
-    time.sleep(2)
+    time.sleep(3)
 
     # Get updated height
     new_height = driver.execute_script("var height=arguments[0].scrollHeight;return height;", scrollable_div)
@@ -151,4 +153,4 @@ pathToJsonFile = os.path.join(os.path.dirname(__file__), fileName)
 
 with open(pathToJsonFile, 'w', encoding='utf-8') as f:
     json.dump(review_objects, f, ensure_ascii=False, indent=4)
-    print('Finished saving', total_number_of_reviews, 'reviews to file', pathToJsonFile)
+    print('Finished saving', len(review_objects), 'reviews to file', pathToJsonFile)

@@ -12,7 +12,7 @@
   "scripts": {
     "compile": "rimraf dist && tsc -p tsconfig.build.json",
     "start": "node dist/src/server.js",
-    "start:debug": "nodemon -e ts,json --exec 'node --inspect=0.0.0.0:9091 --require ts-node/register src/server.ts'",
+    "start:debug": "nodemon -e ts,json --exec 'node --inspect=0.0.0.0:9229 --require ts-node/register src/server.ts'",
     "lint": "eslint ./src ./tests",
     "format:check": "prettier -c ./src ./tests"
   },

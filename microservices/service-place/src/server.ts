@@ -9,15 +9,14 @@ import Database from './core/database';
 import mongoose from 'mongoose';
 import webapp from './core/webapp';
 
-import { GetPlace, GetPlaceHistory, GetPlacesNearby } from './places/endpoints';
-import { GetReviewsForPlace, GetReviewHistoryForPlace } from './reviews/endpoints';
+import { GetPlace, GetPlacesNearby } from './places/endpoints';
+import { GetReviewsForPlace, GetReviewHistoryForPlace, TestScrapePlace } from './reviews/endpoints';
 
+webapp.get('/v1/places/scraper/test', TestScrapePlace);
 webapp.get('/v1/places/nearby', GetPlacesNearby);
 webapp.get('/v1/places/:placeId', GetPlace);
-webapp.get('/v1/places/:placeId/history', GetPlaceHistory);
 webapp.get('/v1/places/:placeId/reviews', GetReviewsForPlace);
 webapp.get('/v1/places/:placeId/reviews/history', GetReviewHistoryForPlace);
-
 
 export const bootstrapService = async () => {
   // connect to mongo
@@ -27,7 +26,6 @@ export const bootstrapService = async () => {
   // start webapp
   webapp.start();
 };
-
 
 bootstrapService()
   .then(async () => {

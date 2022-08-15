@@ -5,7 +5,7 @@ const PLACE_SERVICE_URL = process.env.PLACE_SERVICE_URL ?? 'http://localhost:808
 
 export const getNearbyPlaces = async (lat: number, lng: number, radius: number, keyword?: string) => {
   const places = await getPlacesFromPlaceService(lat, lng, radius, keyword);
-  console.log(`Found [${places.length}] places from place-service`);
+  console.log(`Found ${places.length} places from place-service`);
   return places;
 };
 
@@ -21,7 +21,6 @@ const getPlacesFromPlaceService = async (lat: number, lng: number, radius: numbe
       headers: {},
     };
     const response = await axios(requestConfig);
-    console.log(`response: ${response}`);
     if (response && response.status === 200) {
       return response.data.places ?? [];
     } else {

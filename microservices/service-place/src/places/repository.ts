@@ -3,88 +3,80 @@ import _ from 'lodash';
 import pMap from 'p-map';
 import { ERROR_CODES } from '../consts';
 import { computePlaceScores } from './compute-place-scores';
-import { fetchPlaceDetailsForPlaceIds, fetchPlacesForType } from './fetch-places-for-type';
-import { FOOD_PLACE_TYPES } from './utils';
+import { fetchPlaceDetailsForPlaceIds, getRawPlacesFromGoogle } from '../google';
 import CustomError from '../core/custom-error';
-import { PlaceHistorySchema } from './entities/IPlaceHistory';
 import { IPlace, PlaceSchema } from './entities/IPlace';
 import { IRawPlace } from './entities/IRawPlace';
 import { createUUID, getBulkInsertsForArray } from '../core/utils';
-import { getAndSaveReviewsForPlace } from '../reviews/repository';
-import { IReview, ReviewSchema } from '../reviews/entities/IReview';
+import { getReviewsForPlace } from '../reviews/repository';
+import { IReview } from '../reviews/entities/IReview';
 import { addMetricsForReviews } from './compute-metrics-for-reviews';
-import { ReviewHistorySchema } from '../reviews/entities/IReviewHistory';
 
 const placeModel = mongoose.models.Place || mongoose.model('Place', PlaceSchema);
-const placeHistoryModel = mongoose.models.ReviewHistory || mongoose.model('PlaceHistory', PlaceHistorySchema);
-const reviewModel = mongoose.models.Review || mongoose.model('Review', ReviewSchema);
-const reviewHistoryModel = mongoose.models.ReviewHistory || mongoose.model('ReviewHistory', ReviewHistorySchema);
-
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 export const getPlace = async (placeId: string) => {
-  const place = await placeModel.findOne({ _id: placeId });
+  const place: IPlace | null = await placeModel.findOne({ _id: placeId });
 
   if (!place) {
     throw new CustomError(ERROR_CODES.PLACE_NOT_FOUND, `Place [${placeId}] not found`);
   }
 
-  return { place };
-};
-
-export const getPlaceHistory = async (placeId: string) => {
-  const placeHistory = await placeHistoryModel.findOne({ placeId });
-
-  if (!placeHistory) {
-    throw new CustomError(ERROR_CODES.PLACE_HISTORY_NOT_FOUND, `Place history not found for place [${placeId}]`);
-  }
-
-  return { placeHistory };
+  return place;
 };
 
 export const getPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {
-  if (!GOOGLE_MAPS_API_KEY) {
-    throw new Error(`Must define the GOOGLE_MAPS_API_KEY`);
-  }
+  // const places = await getAndPersistPlaces(lat, lng, radius, keyword);
+  // temporarily just assume the DB has what we need
+  const places = await placeModel.find();
 
-  const places = await getAndPersistPlaces(lat, lng, radius, keyword);
+  const reviewsPerPlace = await getReviewsPerPlaceMap(places);
 
-  const reviewsResponses = await pMap(places, getReviews, { concurrency: 10 });
+  addMetricsForReviews(places, reviewsPerPlace);
 
-  const reviewsPerPlaces: Record<string, IReview[]> = {};
+  console.log(`Found a total of ${places.length} nearby places`);
+
+  return computePlaceScores(places);
+};
+
+const getReviewsPerPlaceMap = async (places: IPlace[]) => {
+  const placeIds = _.map(places, '_id');
+
+  const reviewsResponses = await pMap(placeIds, getReviewsForPlace, { concurrency: 10 });
+
+  const reviewsPerPlace: Record<string, IReview[]> = {};
 
   for (const [index, reviews] of reviewsResponses.entries()) {
     const placeId = places[index]._id;
-    reviewsPerPlaces[placeId] = reviews;
+    reviewsPerPlace[placeId] = reviews;
   }
 
-  addMetricsForReviews(places, reviewsPerPlaces);
-
-  console.log(`Found a total of ${places.length} places`);
-
-  const adjustedPlaces = computePlaceScores(places);
-  return { places: adjustedPlaces };
+  return reviewsPerPlace;
 };
 
-const getReviews = async (place: IPlace): Promise<IReview[]> => {
-  const placeId = place._id;
+const getAndPersistPlaces = async (lat: number, lng: number, radius: number, keyword?: string) => {
+  const allRawPlaces = await getRawPlacesFromGoogle(lat, lng, radius, keyword);
 
-  console.time(`scraping:${placeId}`);
+  const places: IPlace[] = [];
+  const { foundPlaces, missingRawPlaces } = await getPlacesFromMongo(allRawPlaces);
+  places.push(...foundPlaces);
 
-  const reviewHistory = await reviewHistoryModel.findOne({ placeId });
+  if (missingRawPlaces.length) {
+    const missingGooglePlaceIds = _.map(missingRawPlaces, 'place_id');
+    const urlToGooglePlaceIdMap = await fetchPlaceDetailsForPlaceIds(missingGooglePlaceIds);
 
-  // in the future we can check if the history has been around longer than X and re-pull it
-  let reviews;
-  if (!reviewHistory) {
-    console.log(`Fetching reviews for place [${placeId}]`);
-    reviews = await getAndSaveReviewsForPlace(place);
-  } else {
-    reviews = await reviewModel.find({ placeId });
+    const missingPlaces = [];
+    for (const rawPlace of missingRawPlaces) {
+      const googleMapsUrl = urlToGooglePlaceIdMap[rawPlace.place_id] ?? null;
+      missingPlaces.push(getPlaceFromRawPlace(rawPlace, googleMapsUrl));
+    }
+    places.push(...missingPlaces);
+
+    // save the missing places in mongo
+    const placeUpdates = getBulkInsertsForArray(missingPlaces);
+    await placeModel.collection.bulkWrite(placeUpdates as any);
   }
 
-  console.timeEnd(`scraping:${placeId}`);
-
-  return reviews;
+  return places;
 };
 
 const getPlacesFromMongo = async (allRawPlaces: IRawPlace[]) => {
@@ -106,10 +98,11 @@ const getPlacesFromMongo = async (allRawPlaces: IRawPlace[]) => {
     }
   }
 
+  console.log(`Found ${foundPlaces.length} places from mongo. missing ${missingRawPlaces.length} places`);
   return { foundPlaces, missingRawPlaces };
 };
 
-const getPlaceFromRawPlace = (rawPlace: IRawPlace, now: Date, googleMapsUrl: string) => {
+const getPlaceFromRawPlace = (rawPlace: IRawPlace, googleMapsUrl: string) => {
   return {
     _id: createUUID(),
     googlePlaceId: rawPlace.place_id,
@@ -120,7 +113,7 @@ const getPlaceFromRawPlace = (rawPlace: IRawPlace, now: Date, googleMapsUrl: str
     vicinity: rawPlace.vicinity,
     numPhotos: rawPlace.photos?.length ?? 0,
     rating: rawPlace.rating,
-    userRatingsTotal: rawPlace.user_ratings_total,
+    userRatingsTotal: rawPlace.user_ratings_total ?? 0,
     types: rawPlace.types,
     icon: rawPlace.icon,
     scope: rawPlace.scope,
@@ -128,58 +121,8 @@ const getPlaceFromRawPlace = (rawPlace: IRawPlace, now: Date, googleMapsUrl: str
     priceLevel: rawPlace.price_level,
     googleMapsUrl,
     audit: {
-      createdDate: now,
+      createdDate: new Date(),
       updatedDate: null,
     },
   };
-};
-
-const getAndPersistPlaces = async (lat: number, lng: number, radius: number, keyword?: string) => {
-  const now = new Date();
-  const baseUrl = 'https://maps.googleapis.com/maps/api';
-  const basePlaceDetailsUrl = `${baseUrl}/place/details/json?key=${GOOGLE_MAPS_API_KEY}&fields=url`;
-
-  const allRawPlaces = await getRawPlaces(baseUrl, lat, lng, radius, keyword);
-
-  const places: IPlace[] = [];
-  const { foundPlaces, missingRawPlaces } = await getPlacesFromMongo(allRawPlaces);
-  places.push(...foundPlaces);
-
-  if (missingRawPlaces.length) {
-    const missingGooglePlaceIds = _.map(missingRawPlaces, 'place_id');
-    const urlToGooglePlaceIdMap = await fetchPlaceDetailsForPlaceIds(missingGooglePlaceIds, basePlaceDetailsUrl);
-    for (const rawPlace of missingRawPlaces) {
-      const googleMapsUrl = urlToGooglePlaceIdMap[rawPlace.place_id] ?? null;
-      places.push(getPlaceFromRawPlace(rawPlace, now, googleMapsUrl));
-    }
-
-    const placeUpdates = getBulkInsertsForArray(places);
-    await placeModel.collection.bulkWrite(placeUpdates as any);
-  }
-
-  return places;
-};
-
-const getRawPlaces = async (baseUrl: string, lat: number, lng: number, radius: number, keyword?: string) => {
-  const basePlacesUrl = `${baseUrl}/place/nearbysearch/json?key=${GOOGLE_MAPS_API_KEY}`;
-
-  const promises = [];
-  for (const type of FOOD_PLACE_TYPES) {
-    let urlForLocation = `${basePlacesUrl}&location=${lat},${lng}&radius=${radius}&type=${type}`;
-    if (keyword) {
-      urlForLocation = `${urlForLocation}&keyword=${keyword}`;
-    }
-    promises.push(fetchPlacesForType(basePlacesUrl, urlForLocation));
-  }
-  const responses = await Promise.all(promises);
-
-  // create a Map to de-dupe any repeated places
-  const allRawPlacesMap: Record<string, IRawPlace> = {};
-  for (const results of responses) {
-    for (const result of results) {
-      allRawPlacesMap[result.place_id] = result;
-    }
-  }
-
-  return Object.values(allRawPlacesMap);
 };

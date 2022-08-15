@@ -27,7 +27,7 @@ export const getBulkInsertsForArray = (array: any[]) => {
   return updates;
 };
 
-export const getDataFromJsonFile = (filePath: string): Record<string, unknown>[] => {
+export const getDataFromJsonFile = (filePath: string) => {
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (e) {
