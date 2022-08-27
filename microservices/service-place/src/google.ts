@@ -2,6 +2,7 @@ import pMap from 'p-map';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { sleep } from './core/utils';
 import { IRawPlace } from './places/entities/IRawPlace';
+import { HTTP_METHODS } from './consts';
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -122,7 +123,7 @@ export const fetchPlaceDetailsForPlaceIds = async (googlePlaceIds: string[]) => 
 const fetchDataFromGoogleAPI = async (url: string): Promise<AxiosResponse | null> => {
   try {
     const requestConfig: AxiosRequestConfig = {
-      method: 'get',
+      method: HTTP_METHODS.GET,
       url,
       headers: {},
     };

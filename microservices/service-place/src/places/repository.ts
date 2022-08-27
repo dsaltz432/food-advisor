@@ -27,15 +27,33 @@ export const getPlace = async (placeId: string) => {
 export const getPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {
   // const places = await getAndPersistPlaces(lat, lng, radius, keyword);
   // temporarily just assume the DB has what we need
-  const places = await placeModel.find();
+  const places: IPlace[] = await placeModel.find();
 
-  const reviewsPerPlace = await getReviewsPerPlaceMap(places);
+  const filteredPlaces = filterPlaces(places);
 
-  addMetricsForReviews(places, reviewsPerPlace);
+  const reviewsPerPlace = await getReviewsPerPlaceMap(filteredPlaces);
 
-  console.log(`Found a total of ${places.length} nearby places`);
+  addMetricsForReviews(filteredPlaces, reviewsPerPlace);
 
-  return computePlaceScores(places);
+  console.log(`Found a total of ${filteredPlaces.length} nearby places`);
+
+  return computePlaceScores(filteredPlaces);
+};
+
+const filterPlaces = (places: IPlace[]) => {
+  // TODO: make this a config
+  const PLACE_NAMES_TO_SKIP = ["McDonald's", 'Papa Johns Pizza', "Dunkin'", 'Ben & Jerry’s'];
+  const filteredPlaces = [];
+  for (const place of places) {
+    if (place.businessStatus !== 'OPERATIONAL') {
+      console.log(`Skipping [${place.name}] because it is not currently operational`);
+    } else if (PLACE_NAMES_TO_SKIP.includes(place.name)) {
+      console.log(`Skipping [${place.name}] because it's on the list of places to skip`);
+    } else {
+      filteredPlaces.push(place);
+    }
+  }
+  return filteredPlaces;
 };
 
 const getReviewsPerPlaceMap = async (places: IPlace[]) => {
