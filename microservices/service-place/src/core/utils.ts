@@ -32,7 +32,7 @@ export const getDataFromJsonFile = (filePath: string) => {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (e) {
     console.log(`No file found for filePath [${filePath}].`);
-    return [];
+    return {};
   }
 };
 

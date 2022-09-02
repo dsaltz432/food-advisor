@@ -1,11 +1,28 @@
 import { Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '../consts';
-import { getPlace, getPlacesNearby } from './repository';
+import { getPlace, getPlacesNearby, processPlacesNearby } from './repository';
 
 export const GetPlacesNearby = async (req: Request, res: Response) => {
-  // const { lat, lng, radius, keyword } = req.params;
-  const places = await getPlacesNearby(40.799465, -73.966473, 250);
+  const { lat, lng, radius, keyword } = req.query;
+  const places = await getPlacesNearby(
+    parseFloat(lat as string),
+    parseFloat(lng as string),
+    parseFloat(radius as string),
+    keyword as string
+  );
   res.status(HTTP_STATUS_CODES.OK).json({ places });
+};
+
+export const ProcessPlacesNearby = async (req: Request, res: Response) => {
+  const { lat, lng, radius, keyword } = req.query;
+  // await processPlacesNearby(40.799465, -73.966473, 250);
+  await processPlacesNearby(
+    parseFloat(lat as string),
+    parseFloat(lng as string),
+    parseFloat(radius as string),
+    keyword as string
+  );
+  res.status(HTTP_STATUS_CODES.NO_CONTENT).json();
 };
 
 export const GetPlace = async (req: Request, res: Response) => {

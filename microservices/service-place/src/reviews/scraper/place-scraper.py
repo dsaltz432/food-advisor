@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 
 
 if (len(sys.argv)) != 4:
-    print('Must pass in the placeId and url as cmd line arguments')
+    print('Must pass in the authorId, url, and headless as cmd line arguments')
     print(sys.argv)
     os._exit(1)
 
@@ -29,22 +29,22 @@ showReviewsXPath = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/d
 def get_int(num):
     return int(num.replace(',', ''))
 
-def get_total_reviews_for_place():
+def get_total_expected_reviews_for_place():
     elementText = driver.find_element(By.XPATH, showReviewsXPath).text
     try:
         return get_int(elementText.split(" ")[0])
     except:
-        print('Unable to find total_number_of_reviews. Assuming 0 reviews.', elementText)
+        print('Unable to find total_expected_number_of_reviews. Assuming 0 reviews.', elementText)
         os._exit(0) # Exit with code 0 so it doesn't throw an error
 
-total_number_of_reviews = get_total_reviews_for_place()
+total_expected_number_of_reviews = get_total_expected_reviews_for_place()
 
 # Then click on the button to load the All Reviews page
 driver.find_element(By.XPATH, showReviewsXPath).click()
 time.sleep(3) # could convert this to a "wait until" thing later
 
 # Find scrollable element
-scrollable_div = driver.find_element('xpath', '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]')
+scrollable_div = driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]')
 
 # Scroll down the review sidebar until we've loaded all reviews for this place
 while True:
@@ -141,16 +141,23 @@ for reviewBlob in reviewBlobs:
 
 driver.close()
 
+
+numReviewsFound = len(review_objects)
+
+print('Scraping report: total_expected_number_of_reviews=', total_expected_number_of_reviews, ', numReviewsFound=', numReviewsFound)
+
 # Sanity check
-if total_number_of_reviews != len(review_objects):
-    print('Sanity check failed!. total_number_of_reviews=', total_number_of_reviews, ', len(review_objects)=', len(review_objects))
+if total_expected_number_of_reviews != numReviewsFound:
+    print('Sanity check failed! total_expected_number_of_reviews != numReviewsFound=')
 
 
 # Save reviews to JSON file
 
-fileName = 'scraped-reviews/' + placeId + '.json'
+fileName = placeId + '-place.json'
 pathToJsonFile = os.path.join(os.path.dirname(__file__), fileName)
 
 with open(pathToJsonFile, 'w', encoding='utf-8') as f:
-    json.dump(review_objects, f, ensure_ascii=False, indent=4)
-    print('Finished saving', len(review_objects), 'reviews to file', pathToJsonFile)
+    response_json = {}
+    response_json['reviews'] = review_objects
+    json.dump(response_json, f, ensure_ascii=False, indent=4)
+    print('Finished saving', numReviewsFound, 'reviews to file', pathToJsonFile)

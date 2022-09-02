@@ -18,10 +18,21 @@ export enum HTTP_METHODS {
 }
 
 export enum COLLECTIONS {
+  AUTHORS = 'authors',
   PLACES = 'places',
   PLACE_HISTORY = 'placeHistory',
   REVIEWS = 'reviews',
   REVIEW_HISTORY = 'reviewHistory',
+}
+
+export enum REVIEW_SOURCES {
+  AUTHOR_SCRAPER = 'authorScraper',
+  PLACE_SCRAPER = 'placeScraper',
+}
+
+export enum AUTHOR_STATUSES {
+  PENDING = 'pending',
+  SCRAPED = 'scraped',
 }
 
 export const ERROR_CODES = {

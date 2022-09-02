@@ -1,70 +1,28 @@
 import mongoose from 'mongoose';
-import { createUUID, getBulkInsertsForArray } from '../core/utils';
+import _ from 'lodash';
 import CustomError from '../core/custom-error';
 import { ERROR_CODES } from '../consts';
 import { IReview, ReviewSchema } from './entities/IReview';
 import { ReviewHistorySchema } from './entities/IReviewHistory';
-import { scrapeReviewsForPlace } from './scraper/scrape-reviews';
 import { IPlace, PlaceSchema } from '../places/entities/IPlace';
+import { processReviewsInBulk } from './process-reviews-in-bulk';
 
 const reviewModel = mongoose.models.Review || mongoose.model('Review', ReviewSchema);
 const reviewHistoryModel = mongoose.models.ReviewHistory || mongoose.model('ReviewHistory', ReviewHistorySchema);
 const placeModel = mongoose.models.Place || mongoose.model('Place', PlaceSchema);
 
 export const getReviewsForPlace = async (placeId: string): Promise<IReview[]> => {
-  const reviewHistory = await reviewHistoryModel.findOne({ placeId });
-
-  let reviews: IReview[] = [];
-  if (reviewHistory) {
-    reviews = await reviewModel.find({ placeId });
-  } else {
-    const place = await placeModel.findOne({ _id: placeId });
-    if (!place) {
-      throw new Error(`Place [${placeId}] not found`);
-    }
-    reviews = await getAndSaveReviewsForPlace(place);
-  }
-
-  return reviews;
+  return await reviewModel.find({ placeId });
 };
 
-export const getAndSaveReviewsForPlace = async (place: IPlace, headless = true) => {
-  const { _id: placeId, googleMapsUrl, userRatingsTotal } = place;
+export const processReviewsForPlace = async (placeId: string) => {
+  await processReviewsInBulk([placeId]);
+};
 
-  let reviews: IReview[] = [];
-  if (userRatingsTotal > 0) {
-    console.log(`Scraping ${userRatingsTotal} reviews for place [${placeId}], googleMapsUrl [${googleMapsUrl}]`);
-    reviews = await scrapeReviewsForPlace(placeId, googleMapsUrl, headless);
+export const processReviewsForPlaces = async (placeIds: string[]) => {
+  for (const placeIdsSubset of _.chunk(placeIds, 5)) {
+    await processReviewsInBulk(placeIdsSubset);
   }
-
-  const now = new Date();
-
-  await reviewHistoryModel.findOneAndUpdate(
-    {
-      placeId,
-    },
-    {
-      $set: {
-        lastPulledAt: now,
-        numReviews: reviews.length,
-        'audit.updatedDate': now,
-      },
-      $setOnInsert: {
-        _id: createUUID(),
-        placeId,
-        'audit.createdDate': now,
-      },
-    },
-    { upsert: true }
-  );
-
-  if (reviews.length) {
-    await reviewModel.collection.deleteMany({ placeId });
-    const reviewUpdates = getBulkInsertsForArray(reviews);
-    await reviewModel.collection.bulkWrite(reviewUpdates as any);
-  }
-
-  return reviews;
 };
 
 export const getReviewHistoryForPlace = async (placeId: string) => {
@@ -77,10 +35,10 @@ export const getReviewHistoryForPlace = async (placeId: string) => {
   return reviewHistory;
 };
 
-export const testScrapePlace = async (placeId: string, headless: boolean) => {
+export const testScrapePlace = async (placeId: string) => {
   const report: Record<string, unknown> = {};
 
-  const place = await placeModel.findOne({ _id: placeId });
+  const place: IPlace | null = await placeModel.findOne({ _id: placeId });
   if (!place) {
     throw new Error(`Place [${placeId}] not found`);
   }
@@ -97,11 +55,14 @@ export const testScrapePlace = async (placeId: string, headless: boolean) => {
 
   const startTime = new Date().getTime();
 
-  const reviews = await getAndSaveReviewsForPlace(place, headless);
+  await processReviewsForPlace(placeId);
+
+  const reviews = await getReviewsForPlace(placeId);
 
   const elapsedTime = new Date().getTime() - startTime;
 
   report.numScrapedReviews = reviews.length;
+  report.numReviewsOnPlace = place.userRatingsTotal;
   report.elapsedTime = elapsedTime;
 
   return report;

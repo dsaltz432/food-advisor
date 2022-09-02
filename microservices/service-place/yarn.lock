@@ -403,6 +403,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/zipcodes@^8.0.2":
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@types/zipcodes/-/zipcodes-8.0.2.tgz#8f7e6db6f6618ff8c0129459c1b08a65dcbb3716"
+  integrity sha512-OOByuwsYPXxU0UdTKjXvs3E0ntv2PbwPQr+ZfQxYczN1u9IJU0nQVmMeDY4h/Q2/yry6dgi4eoDBqrYyhvE2uw==
+
 "@typescript-eslint/eslint-plugin@^5.30.7":
   version "5.30.7"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.30.7.tgz#1621dabc1ae4084310e19e9efc80dfdbb97e7493"
@@ -3232,3 +3237,8 @@ yn@3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
+
+zipcodes@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/zipcodes/-/zipcodes-8.0.0.tgz#4d124cdeedfc693f1b0ef8060323f206aeb98a9b"
+  integrity sha512-V8NolFaJhsPamGeCv5lJdk60Q7JBiXI6e+8JDksPC1NJWZ0t7g1OFfqVLZb2Nc2F5jmf9JTdYdWJBnIhGBvtbA==

@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import _ from 'lodash';
-import pMap from 'p-map';
 import { ERROR_CODES } from '../consts';
 import { computePlaceScores } from './compute-place-scores';
 import { fetchPlaceDetailsForPlaceIds, getRawPlacesFromGoogle } from '../google';
@@ -8,9 +7,8 @@ import CustomError from '../core/custom-error';
 import { IPlace, PlaceSchema } from './entities/IPlace';
 import { IRawPlace } from './entities/IRawPlace';
 import { createUUID, getBulkInsertsForArray } from '../core/utils';
-import { getReviewsForPlace } from '../reviews/repository';
-import { IReview } from '../reviews/entities/IReview';
-import { addMetricsForReviews } from './compute-metrics-for-reviews';
+import { processReviewsForPlaces } from '../reviews/repository';
+// import { addMetricsForReviews } from './compute-metrics-for-reviews';
 
 const placeModel = mongoose.models.Place || mongoose.model('Place', PlaceSchema);
 
@@ -24,16 +22,25 @@ export const getPlace = async (placeId: string) => {
   return place;
 };
 
-export const getPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {
-  // const places = await getAndPersistPlaces(lat, lng, radius, keyword);
+export const processPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {
+  const places = await getAndPersistPlaces(lat, lng, radius, keyword);
   // temporarily just assume the DB has what we need
-  const places: IPlace[] = await placeModel.find();
+  // const places: IPlace[] = await placeModel.find();
 
   const filteredPlaces = filterPlaces(places);
 
-  const reviewsPerPlace = await getReviewsPerPlaceMap(filteredPlaces);
+  const placeIds = _.map(filteredPlaces, '_id');
+  await processReviewsForPlaces(placeIds);
+};
 
-  addMetricsForReviews(filteredPlaces, reviewsPerPlace);
+export const getPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {
+  const places = await getAndPersistPlaces(lat, lng, radius, keyword);
+  // temporarily just assume the DB has what we need
+  // const places: IPlace[] = await placeModel.find();
+
+  const filteredPlaces = filterPlaces(places);
+
+  // addMetricsForReviews(filteredPlaces, getReviewsPerPlaceMap(filteredPlaces));
 
   console.log(`Found a total of ${filteredPlaces.length} nearby places`);
 
@@ -54,21 +61,6 @@ const filterPlaces = (places: IPlace[]) => {
     }
   }
   return filteredPlaces;
-};
-
-const getReviewsPerPlaceMap = async (places: IPlace[]) => {
-  const placeIds = _.map(places, '_id');
-
-  const reviewsResponses = await pMap(placeIds, getReviewsForPlace, { concurrency: 10 });
-
-  const reviewsPerPlace: Record<string, IReview[]> = {};
-
-  for (const [index, reviews] of reviewsResponses.entries()) {
-    const placeId = places[index]._id;
-    reviewsPerPlace[placeId] = reviews;
-  }
-
-  return reviewsPerPlace;
 };
 
 const getAndPersistPlaces = async (lat: number, lng: number, radius: number, keyword?: string) => {
