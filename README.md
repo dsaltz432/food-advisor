@@ -1,3 +1,16 @@
+# Table of Contents
+
+- [Data Structures](#data-structures)
+  - [Places](#places)
+  - [Reviews](#reviews)
+    - [Place Reviews](#place-reviews)
+    - [Author Reviews](#author-reviews)
+  - [Authors](#authors)
+- [Known Issues](#known-issues)
+- [Open Questions](#open-questions)
+
+&nbsp;
+
 # Data Structures
 
 ## Places
@@ -244,7 +257,7 @@ We have two types of reviews of reviews in our system. Reviews extracted while s
 
 &nbsp;
 
-## Known Issues
+# Known Issues
 
 - There are duplicate reviews between the `placeReviews` and the `authorReviews`. We initially store the `placeReviews` in our system, and then scrape each author's other reviews. But currently we don't filter out the `authorReviews` that are actually the same reviews as the `placeReviews`. This isn't a huge problem, it will just shift the data slightly because it's duplicating a small number of reviews. It can be fixed later and the analysis can be recalculated.
 - Some places failed to scrape all of its reviews. This only happened to a select few places who had many reviews (over 500), and Google already sorts reviews based on some priority criteria. So in practice we scraped at minimum the top 500 most prominent reviews, which means this only a small issue.
@@ -253,7 +266,7 @@ We have two types of reviews of reviews in our system. Reviews extracted while s
 
 &nbsp;
 
-## Open Questions
+# Open Questions
 
 - Do the `authorLevel` and `authorPoints` provide any additional information more than just knowing if a user is a `authorIsLocalGuide`? In other words, should we assign users who are on level 10 more weight than users who are on level 3?
 - Can we compute our own "local guide" metric that is more meaningful than Google's local guide system, using data for which locations each author's reviews?
