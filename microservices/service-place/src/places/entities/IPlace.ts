@@ -22,10 +22,6 @@ export interface IPlace {
   userRatingsTotal: number;
   vicinity: string;
   googleMapsUrl: string;
-  // computedMetrics: {
-  //   localGuidePercentage: number;
-  //   adjustedRating: number;
-  // };
   computedMetrics?: any;
   audit: {
     createdDate: Date;
@@ -53,10 +49,6 @@ export const PlaceSchema = new Schema<IPlace>(
     userRatingsTotal: { type: Number, required: true },
     vicinity: { type: String, required: true },
     googleMapsUrl: { type: String, required: true },
-    // computedMetrics: {
-    //   localGuidePercentage: { type: Number, required: true },
-    //   adjustedRating: { type: Number, required: true },
-    // },
     computedMetrics: { type: {}, required: false },
     audit: {
       createdDate: { type: Date, required: false, default: () => new Date() },

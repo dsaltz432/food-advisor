@@ -17,9 +17,7 @@ export const geocodeReviews = async () => {
 
   // loop through all scraped authors at a time, (as opposed to using a cursor which could time out)
   // TODO: make this work with pulling in batches. For some reason it's not letting me filter out authors without locationStats
-  const scrapedAuthors: IAuthor[] = await authorModel.find({
-    status: AUTHOR_STATUSES.SCRAPED,
-  });
+  const scrapedAuthors: IAuthor[] = await authorModel.find({ status: AUTHOR_STATUSES.SCRAPED });
 
   for (const authorsBatch of _.chunk(scrapedAuthors, 100)) {
     // get the place reviews for these authors that don't have location saved already
@@ -54,7 +52,7 @@ export const geocodeReviews = async () => {
 
         const placeReviewLocation = getLocationFromCoords(place.location.lat, place.location.lng);
         if (!placeReviewLocation) {
-          console.log(`Unable to find location for place review [${placeReview._id}], location [${place.location}]`);
+          // console.log(`Unable to find location for place review [${placeReview._id}], location [${place.location}]`);
           continue;
         }
 
@@ -65,23 +63,8 @@ export const geocodeReviews = async () => {
         for (const authorReview of authorReviewsForAuthor) {
           // get the detailed location from the author review address
           const address = getCleanedAddress(authorReview.placeAddress);
-
-          if (shouldAddressBeSkipped(address)) {
-            // console.log(`Address is being skipped: [${address}]`);
-            continue;
-          }
-
-          const zip = getZipFromAddress(address);
-          if (!zip) {
-            console.log(`Unable to get zip from address [${address}]. reviewId: ${authorReview._id}`);
-            continue;
-          }
-
-          const authorReviewLocation = getLocationFromZip(zip);
+          const authorReviewLocation = getLocationFromAddress(address);
           if (!authorReviewLocation) {
-            console.log(
-              `Unable to find location for author review. address [${address}]. reviewId: ${authorReview._id}`
-            );
             continue;
           }
 
@@ -142,7 +125,7 @@ export const geocodeReviews = async () => {
       if (reviewMongoUpdates.length >= 1000) {
         await reviewModel.collection.bulkWrite(reviewMongoUpdates);
         totalPlaceReviewsProcessed += reviewMongoUpdates.length;
-        console.log(`Processed ${totalPlaceReviewsProcessed} reviews.`);
+        console.log(`Derived location for ${totalPlaceReviewsProcessed} place reviews.`);
         reviewMongoUpdates = [];
       }
     }
@@ -150,13 +133,140 @@ export const geocodeReviews = async () => {
     if (reviewMongoUpdates.length) {
       await reviewModel.collection.bulkWrite(reviewMongoUpdates);
       totalPlaceReviewsProcessed += reviewMongoUpdates.length;
-      console.log(`Processed ${totalPlaceReviewsProcessed} reviews.`);
+      console.log(`Derived location ${totalPlaceReviewsProcessed} place reviews. Finished deriving location.`);
       reviewMongoUpdates = [];
     }
   }
 };
 
-const getCleanedAddress = (placeAddress: string) => {
+export const persistLocationStatsOnPlaceReviews = async (authors: IAuthor[]) => {
+  let totalPlaceReviewsProcessed = 0;
+
+  for (const authorsBatch of _.chunk(authors, 100)) {
+    // get the place reviews for these authors that don't have location saved already
+    const placeReviews: IReview[] = await reviewModel.find({
+      authorId: { $in: _.map(authorsBatch, '_id') },
+      source: REVIEW_SOURCES.PLACE_SCRAPER,
+      location: { $exists: false },
+    });
+    const placeReviewByAuthor: Record<string, IReview[]> = _.groupBy(placeReviews, 'authorId');
+
+    // get the author reviews for these authors. the locations should exist already.
+    const authorReviews: IReview[] = await reviewModel.find({
+      source: REVIEW_SOURCES.AUTHOR_SCRAPER,
+      authorId: { $in: _.uniq(_.map(authorsBatch, '_id')) },
+      location: { $exists: true },
+    });
+
+    const authorReviewsByAuthor: Record<string, IReview[]> = _.groupBy(authorReviews, 'authorId');
+
+    // get the places for these reviews so we can attach the place's location onto each place review
+    const places: IPlace[] = await placeModel.find({ _id: { $in: _.uniq(_.map(placeReviews, 'placeId')) } });
+    const placesMap: Record<string, IPlace> = _.keyBy(places, '_id');
+
+    const now = new Date();
+    let reviewMongoUpdates = [];
+
+    for (const [authorId, placeReviewsForAuthor] of Object.entries(placeReviewByAuthor)) {
+      // loop through each of this author's place reviews
+      for (const placeReview of placeReviewsForAuthor) {
+        const place = placesMap[placeReview.placeId as string];
+
+        const placeReviewLocation = getLocationFromCoords(place.location.lat, place.location.lng);
+        if (!placeReviewLocation) {
+          // console.log(`Unable to find location for place review [${placeReview._id}], location [${place.location}]`);
+          continue;
+        }
+
+        // loop through each of the author's review and compute the distance (and stats) for each review compared to each place review
+        const locationStatsForPlaceReview = getInitializedAuthorLocationStats();
+
+        const authorReviewsForAuthor = authorReviewsByAuthor[authorId] || [];
+        for (const authorReview of authorReviewsForAuthor) {
+          // skip if the author review location isn't found. we can't determine all locations.
+          if (!authorReview.location) {
+            continue;
+          }
+
+          // calculate the distance from the place to the author review
+          const milesFromReviewToPlace = getDistanceBetweenCoords(
+            place.location.lat,
+            place.location.lng,
+            authorReview.location.lat,
+            authorReview.location.lng
+          );
+
+          // Count the reviews within each distance threshold
+          for (const stats of locationStatsForPlaceReview) {
+            if (stats.threshold > milesFromReviewToPlace) {
+              stats.numReviewsWithinThreshold++;
+              stats.ratingsForThreshold.push(authorReview.rating);
+            }
+          }
+        }
+
+        // Compute averages for each distance threshold
+        for (const stats of locationStatsForPlaceReview) {
+          if (stats.ratingsForThreshold.length) {
+            stats.averageForThreshold = computeAverage(stats.ratingsForThreshold);
+            stats.medianForThreshold = computeMedian(stats.ratingsForThreshold);
+          }
+        }
+
+        // queue up author update with the location stats
+        reviewMongoUpdates.push({
+          updateOne: {
+            filter: { _id: placeReview._id },
+            update: {
+              $set: {
+                location: placeReviewLocation,
+                locationStats: locationStatsForPlaceReview,
+                'audit.lastUpdatedLocation': now,
+              },
+            },
+          },
+        });
+      }
+
+      if (reviewMongoUpdates.length >= 1000) {
+        await reviewModel.collection.bulkWrite(reviewMongoUpdates);
+        totalPlaceReviewsProcessed += reviewMongoUpdates.length;
+        console.log(`Derived location for ${totalPlaceReviewsProcessed} place reviews.`);
+        reviewMongoUpdates = [];
+      }
+    }
+
+    if (reviewMongoUpdates.length) {
+      await reviewModel.collection.bulkWrite(reviewMongoUpdates);
+      totalPlaceReviewsProcessed += reviewMongoUpdates.length;
+      console.log(`Derived location ${totalPlaceReviewsProcessed} place reviews. Finished deriving location.`);
+      reviewMongoUpdates = [];
+    }
+  }
+};
+
+export const getLocationFromAddress = (address: string) => {
+  if (shouldAddressBeSkipped(address)) {
+    // console.log(`Address is being skipped: [${address}]`);
+    return null;
+  }
+
+  const zip = getZipFromAddress(address);
+  if (!zip) {
+    // console.log(`Unable to get zip from address [${address}]`);
+    return null;
+  }
+
+  const authorReviewLocation = getLocationFromZip(zip);
+  if (!authorReviewLocation) {
+    // console.log(`Unable to find location for author review. address [${address}]`);
+    return null;
+  }
+
+  return authorReviewLocation;
+};
+
+export const getCleanedAddress = (placeAddress: string) => {
   const lastTwoOfAddress = placeAddress.slice(-2);
   if (lastTwoOfAddress === ' -') {
     return placeAddress.slice(0, -2);
@@ -180,6 +290,24 @@ const shouldAddressBeSkipped = (address: string) => {
       ', Taiwan',
       'South Korea, ',
       ', Morocco',
+      ', Turkey',
+      ', Mexico',
+      ', United Kingdom',
+      ', Spain',
+      ', Israel',
+      ', Australia',
+      ', Chile',
+      ', Malaysia',
+      ', India',
+      ', Thailand',
+      ', Poland',
+      ', Colombia',
+      ', Puerto Rico',
+      ', Canada',
+      ', Spain',
+      ', France',
+      ', Italy',
+      ', Australia',
     ];
 
     if (!isValidUSZip(lastFiveOfAddress)) {
@@ -204,7 +332,7 @@ const isValidUSZip = (zip: string) => {
   return /^\d{5}$/.test(zip);
 };
 
-const getLocationFromZip = (zip: string) => {
+export const getLocationFromZip = (zip: string) => {
   const zipMappings: Record<string, string> = {
     '07037': '07097',
     '89518': '89118',
@@ -218,7 +346,7 @@ const getLocationFromZip = (zip: string) => {
   return getParsedLocation(rawLocation);
 };
 
-const getLocationFromCoords = (lat: number, lng: number) => {
+export const getLocationFromCoords = (lat: number, lng: number) => {
   const rawLocation = zipcodes.lookupByCoords(lat, lng);
   return getParsedLocation(rawLocation);
 };
@@ -245,8 +373,7 @@ const getDistanceBetweenCoords = (lat1: number, lon1: number, lat2: number, lon2
   lat1 = deg2rad(lat1);
   lat2 = deg2rad(lat2);
 
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return 3960 * c;
 };

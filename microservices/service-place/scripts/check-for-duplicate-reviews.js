@@ -6,8 +6,9 @@ for (const place of places) {
 	var history = db.reviewHistory.findOne({ placeId });
 	var numActualReviews = db.reviews.find({ placeId }).count();
 	var userRatingsTotal = place.userRatingsTotal;
+    var historyNum = (history && history.numReviews) || 0;
 
-	if (numActualReviews > history.numReviews) {
-		printjson({ placeId, userRatingsTotal, numActualReviews, historyNum: history.numReviews });
+	if (numActualReviews > historyNum) {
+		printjson({ placeId, userRatingsTotal, numActualReviews, historyNum });
 	}
 }

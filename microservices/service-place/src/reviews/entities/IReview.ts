@@ -75,4 +75,5 @@ ReviewSchema.methods.toJSON = function () {
 
 ReviewSchema.index({ placeId: 1 }, { unique: false });
 ReviewSchema.index({ authorId: 1 }, { unique: false });
+ReviewSchema.index({ googleAuthorId: 1 }, { unique: false });
 ReviewSchema.index({ source: 1, authorName: 1, authorNumReviews: 1 }, { unique: false });

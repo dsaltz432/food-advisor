@@ -3,7 +3,7 @@ import { PythonShell } from 'python-shell';
 import { createUUID, deleteFile, getDataFromJsonFile } from '../../core/utils';
 import { IReview } from '../entities/IReview';
 import { IRawReview } from '../entities/IRawReview';
-import { IPlace } from 'src/places/entities/IPlace';
+import { IPlace } from '../../places/entities/IPlace';
 import { IAuthor } from '../entities/IAuthor';
 import { IRawAuthor } from '../entities/IRawAuthor';
 import { REVIEW_SOURCES } from '../../consts';
@@ -31,11 +31,7 @@ export const scrapeReviewsForAuthor = async (authorStub: IAuthor, authorUrl: str
   return getAuthorReviewsFromRawResults(authorStub, rawAuthor, rawReviews);
 };
 
-const scrapeReviewsUsingPythonScriptAndGenerateJsonFile = async (
-  id: string,
-  url: string,
-  pathToPythonScraper: string
-) => {
+const scrapeReviewsUsingPythonScriptAndGenerateJsonFile = async (id: string, url: string, pathToPythonScraper: string) => {
   const pythonOptions = {
     pythonOptions: ['-u'],
     args: [id, url, SCRAPE_HEADLESS.toString()],
@@ -47,7 +43,7 @@ const scrapeReviewsUsingPythonScriptAndGenerateJsonFile = async (
         printPythonResults(results);
         reject(err);
       } else {
-        printPythonResults(results);
+        // printPythonResults(results);
         resolve();
       }
     });

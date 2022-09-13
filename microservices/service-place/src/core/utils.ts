@@ -31,7 +31,7 @@ export const getDataFromJsonFile = (filePath: string) => {
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (e) {
-    console.log(`No file found for filePath [${filePath}].`);
+    // console.log(`No file found for filePath [${filePath}].`);
     return {};
   }
 };
@@ -40,6 +40,6 @@ export const deleteFile = (filePath: string) => {
   try {
     fs.unlinkSync(filePath);
   } catch (e) {
-    console.log(`No file found for filePath [${filePath}].`);
+    //console.log(`No file found for filePath [${filePath}].`);
   }
 };

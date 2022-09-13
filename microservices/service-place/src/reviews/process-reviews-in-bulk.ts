@@ -7,7 +7,8 @@ import { IReviewHistory, ReviewHistorySchema } from './entities/IReviewHistory';
 import { IPlace, PlaceSchema } from '../places/entities/IPlace';
 import { scrapeReviewsForAuthor, scrapeReviewsForPlace } from './scraper/scrape-reviews';
 import { createUUID, getBulkInsertsForArray } from '../core/utils';
-import { AUTHOR_STATUSES } from '../consts';
+import { AUTHOR_STATUSES, REVIEW_SOURCES } from '../consts';
+import { persistLocationStatsOnPlaceReviews, getCleanedAddress, getLocationFromAddress } from './geocode-reviews';
 
 const authorModel = mongoose.models.Author || mongoose.model('Author', AuthorSchema);
 const reviewModel = mongoose.models.Review || mongoose.model('Review', ReviewSchema);
@@ -52,6 +53,11 @@ const processPendingAuthorReviews = async () => {
   const skipAuthorIds = ['bad07004-faa8-4629-b7f2-9cde8fc10eb6'];
 
   // loop through 20 authors at a time, to avoid the cursor timing out
+  // temporary only look at authors from this specific place
+  // const googleAuthorIds = await reviewModel.distinct('googleAuthorId', { placeId: 'f2060823-20e5-4a25-9016-62adc5799d79' });
+  // let pendingAuthors: IAuthor[] = await authorModel
+  //   .find({ status: AUTHOR_STATUSES.PENDING, googleAuthorId: { $in: googleAuthorIds } })
+  //   .limit(20);
   let pendingAuthors: IAuthor[] = await authorModel.find({ status: AUTHOR_STATUSES.PENDING }).limit(20);
 
   while (pendingAuthors.length) {
@@ -68,6 +74,9 @@ const processPendingAuthorReviews = async () => {
         const authorUpdatesInBatch = [];
         const reviewsInsertArray = [];
         for (const { reviewsForAuthor, author } of reviewsResponses) {
+          attachLocationOnAuthorReviews(reviewsForAuthor);
+          reviewsInsertArray.push(...reviewsForAuthor);
+
           author.status = AUTHOR_STATUSES.SCRAPED;
           authorUpdatesInBatch.push({
             updateOne: {
@@ -75,9 +84,9 @@ const processPendingAuthorReviews = async () => {
               update: { $set: author },
             },
           });
-          reviewsInsertArray.push(...reviewsForAuthor);
         }
         await persistAuthorReviews(reviewsInsertArray, authorUpdatesInBatch, authorsInBatch);
+        await persistLocationStatsOnPlaceReviews(authorsInBatch);
         totalReviewsProcessed += reviewsInsertArray.length;
         totalAuthorsProcessed += authorUpdatesInBatch.length;
         authorsInBatch = [];
@@ -90,6 +99,9 @@ const processPendingAuthorReviews = async () => {
       const authorUpdatesInBatch = [];
       const reviewsInsertArray = [];
       for (const { reviewsForAuthor, author } of reviewsResponses) {
+        attachLocationOnAuthorReviews(reviewsForAuthor);
+        reviewsInsertArray.push(...reviewsForAuthor);
+
         author.status = AUTHOR_STATUSES.SCRAPED;
         authorUpdatesInBatch.push({
           updateOne: {
@@ -97,18 +109,31 @@ const processPendingAuthorReviews = async () => {
             update: { $set: author },
           },
         });
-        reviewsInsertArray.push(...reviewsForAuthor);
       }
       await persistAuthorReviews(reviewsInsertArray, authorUpdatesInBatch, authorsInBatch);
+      await persistLocationStatsOnPlaceReviews(authorsInBatch);
       totalReviewsProcessed += reviewsInsertArray.length;
       totalAuthorsProcessed += authorUpdatesInBatch.length;
       authorsInBatch = [];
-      console.log(
-        `Processed ${totalReviewsProcessed} reviews from ${totalAuthorsProcessed} authors. Finished processing.`
-      );
+      console.log(`Processed ${totalReviewsProcessed} reviews from ${totalAuthorsProcessed} authors. Finished processing.`);
     }
     // fetch the next 20 pending authors
     pendingAuthors = await authorModel.find({ status: AUTHOR_STATUSES.PENDING }).limit(20);
+    // pendingAuthors = await authorModel
+    //   .find({ status: AUTHOR_STATUSES.PENDING, googleAuthorId: { $in: googleAuthorIds } })
+    //   .limit(20);
+  }
+};
+
+const attachLocationOnAuthorReviews = (authorReviews: IReview[]) => {
+  for (const review of authorReviews) {
+    review.placeAddress = getCleanedAddress(review.placeAddress);
+    const authorReviewLocation = getLocationFromAddress(review.placeAddress);
+    if (!authorReviewLocation) {
+      // console.log(`Unable to find location for author review. address [${review.placeAddress}]. reviewId: ${review._id}`);
+    } else {
+      review.location = authorReviewLocation;
+    }
   }
 };
 
@@ -116,12 +141,11 @@ const processPlaceReviews = async (placeAndReviewHistory: PlaceAndReviewHistory)
   const { place, reviewHistory } = placeAndReviewHistory;
   const { _id: placeId, name, googleMapsUrl, userRatingsTotal } = place;
 
+  // if we already have a reviewHistory, it means we've already scraped this place and we can return early
   if (reviewHistory || userRatingsTotal === 0) {
     return;
   }
-  console.log(
-    `Scraping ${userRatingsTotal} place reviews for [${name}], placeId [${placeId}], googleMapsUrl [${googleMapsUrl}]`
-  );
+  console.log(`Scraping ${userRatingsTotal} place reviews for [${name}], placeId [${placeId}], googleMapsUrl [${googleMapsUrl}]`);
   const response = await scrapeReviewsForPlace(place, googleMapsUrl);
 
   const authorGoogleIdsSet = new Set();
@@ -147,7 +171,7 @@ const processPlaceReviews = async (placeAndReviewHistory: PlaceAndReviewHistory)
     }
   }
 
-  await persistPlaceReviews(placeId, response.reviews, authorStubs);
+  await persistPlaceReviews(place, response.reviews, authorStubs);
 };
 
 const processAuthorReviews = async (authorStub: IAuthor) => {
@@ -186,7 +210,7 @@ const generateNewAuthorStub = (review: IReview): IAuthor => {
   };
 };
 
-const persistPlaceReviews = async (placeId: string, reviews: IReview[], authors: IAuthor[]) => {
+const persistPlaceReviews = async (place: IPlace, reviews: IReview[], authors: IAuthor[]) => {
   const now = new Date();
 
   const session = await mongoose.startSession();
@@ -195,7 +219,7 @@ const persistPlaceReviews = async (placeId: string, reviews: IReview[], authors:
     await session.withTransaction(async () => {
       await reviewHistoryModel.findOneAndUpdate(
         {
-          placeId,
+          placeId: place._id,
         },
         {
           $set: {
@@ -205,26 +229,31 @@ const persistPlaceReviews = async (placeId: string, reviews: IReview[], authors:
           },
           $setOnInsert: {
             _id: createUUID(),
-            placeId,
+            placeId: place._id,
             'audit.createdDate': now,
           },
         },
         { upsert: true, session }
       );
 
-      // clear out any existing reviews
-      await reviewModel.collection.deleteMany({ placeId }, { session });
+      // clear out any existing reviews for this same googlePlaceId
+      await reviewModel.collection.deleteMany({ googlePlaceId: place.googlePlaceId }, { session });
 
       if (reviews.length) {
         const reviewUpdates = getBulkInsertsForArray(reviews);
         await reviewModel.collection.bulkWrite(reviewUpdates as any, { session });
       }
+
       if (authors.length) {
+        // clear out any existing authors for these googleAuthorId (if re-running the script)
+        await authorModel.collection.deleteMany({ googleAuthorId: { $in: _.map(authors, 'googleAuthorId') } }, { session });
+
+        // insert new authors
         await authorModel.collection.insertMany(authors as any, { session });
       }
     });
   } catch (e) {
-    throw new Error(`Error saving reviews for place [${placeId}], ${e}`);
+    throw new Error(`Error saving reviews for place [${place._id}], ${e}`);
   } finally {
     await session.endSession();
   }
@@ -235,9 +264,24 @@ const persistAuthorReviews = async (reviewsInsertArray: IReview[], authorUpdates
 
   try {
     await session.withTransaction(async () => {
-      // clear out any existing reviews for these authors
       if (authorsInBatch.length) {
-        await reviewModel.collection.deleteMany({ authorId: { $in: _.map(authorsInBatch, '_id') } }, { session });
+        // clear out any existing author reviews for these authorIds. None should really exist, but it could happen from half completed previous runs
+        await reviewModel.collection.deleteMany(
+          { source: REVIEW_SOURCES.AUTHOR_SCRAPER, authorId: { $in: _.map(authorsInBatch, '_id') } },
+          { session }
+        );
+
+        // update existing placeReviews with the authorId (now that we have it)
+        const placeReviewUpdates = [];
+        for (const author of authorsInBatch) {
+          placeReviewUpdates.push({
+            updateMany: {
+              filter: { googleAuthorId: author.googleAuthorId, authorId: null },
+              update: { $set: { authorId: author._id } },
+            },
+          });
+        }
+        await reviewModel.collection.bulkWrite(placeReviewUpdates as any, { session });
       }
 
       if (reviewsInsertArray.length) {

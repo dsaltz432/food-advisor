@@ -49,14 +49,19 @@ export const getPlacesNearby = async (lat: number, lng: number, radius: number, 
 
 const filterPlaces = (places: IPlace[]) => {
   // TODO: make this a config
-  const PLACE_NAMES_TO_SKIP = ["McDonald's", 'Papa Johns Pizza', "Dunkin'", 'Ben & Jerry’s'];
+  const PLACE_NAMES_TO_SKIP = ["McDonald's", 'Papa Johns Pizza', "Dunkin'", 'Ben & Jerry’s', 'Starbucks'];
   const filteredPlaces = [];
   for (const place of places) {
+    // // for testing
+    // if (place.googlePlaceId !== 'ChIJPW1qMjv2wokR5At5Y4I__iI') {
+    //   continue;
+    // }
     if (place.businessStatus !== 'OPERATIONAL') {
       console.log(`Skipping [${place.name}] because it is not currently operational`);
     } else if (PLACE_NAMES_TO_SKIP.includes(place.name)) {
       console.log(`Skipping [${place.name}] because it's on the list of places to skip`);
     } else {
+      console.log(`Not skipping [${place.name}]`);
       filteredPlaces.push(place);
     }
   }
