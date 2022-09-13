@@ -14,6 +14,10 @@
 - I think there are duplicate reviews between the place reviews and the author reviews
   Example here: db.reviews.find({authorId:'4b7a07d6-9dc8-4f1d-abb5-f00da7d402f2',text:/Malaysian born & raised here, ordered roti canai/}).pretty()
 
+- Analyze places feedback: https://docs.google.com/spreadsheets/d/1ZOs0PgV64Xc1vaJ90IwDkOyT6jUReVThQYy1f63rTeM/edit#gid=0
+
+- Should I only analyze reviews made prior to each place review? Right now if someone reviews something in Brooklyn, but has never been to brooklyn, and then 2 years later moves to Brooklyn and reviews a lot of places there, it would treat the first review as "local"
+
 ## Location Mapping
 
 // Find mappings for these locations. Might be invalid zip codes

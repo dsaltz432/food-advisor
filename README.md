@@ -272,3 +272,8 @@ We have two types of reviews of reviews in our system. Reviews extracted while s
 - Can we compute our own "local guide" metric that is more meaningful than Google's local guide system, using data for which locations each author's reviews?
 - What is the best distance threshold to use when analyzing a user's "local-ness" to a place?
 - How much weight should be put to the recency of a review compared to the quality of the author who writes the review?
+
+# Installing Chrome Webdriver
+
+1. Go to https://chromedriver.chromium.org/downloads. Pick a version which brings you to a page like this https://chromedriver.storage.googleapis.com/index.html?path=105.0.5195.52/
+2. Download the zip, and double click on the executable (may have to allow it in System Preferences since it came from an "untrusted source")
