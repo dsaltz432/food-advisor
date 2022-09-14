@@ -19,11 +19,11 @@ class Database {
       pkFactory: {
         createPk: createUUID,
       },
-      retryWrites: true,
+      retryWrites: true,  
     };
 
-    // don't include username/password for local environment
-    if (process.env.ENVIRONMENT !== 'local') {
+    // don't include username/password for localhost
+    if (!MONGO_URL.includes('localhost')) {
       connectOptions.auth = {
         username: process.env.MONGO_USERNAME,
         password: process.env.MONGO_PASSWORD,

@@ -277,3 +277,13 @@ We have two types of reviews of reviews in our system. Reviews extracted while s
 
 1. Go to https://chromedriver.chromium.org/downloads. Pick a version which brings you to a page like this https://chromedriver.storage.googleapis.com/index.html?path=105.0.5195.52/
 2. Download the zip, and double click on the executable (may have to allow it in System Preferences since it came from an "untrusted source")
+
+## Docker command
+
+The docker command to start the service is
+`docker run -it -p 8080:8080 --shm-size='2g' --env-file .env gcr.io/fifth-boulder-274618/service-place:v1`
+
+The `--shm-size='2g'` option is specified to allow for enough memory for selenium to perform it's scraping. Articles describe the requirement here:
+
+- https://stackoverflow.com/questions/53902507/unknown-error-session-deleted-because-of-page-crash-from-unknown-error-cannot
+- https://github.com/SeleniumHQ/docker-selenium
