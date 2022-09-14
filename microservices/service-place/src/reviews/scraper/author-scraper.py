@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-
+import selenium
 
 if (len(sys.argv)) != 4:
     print('Must pass in the authorId, url, and headless as cmd line arguments')
@@ -17,6 +17,8 @@ authorId = sys.argv[1]
 url = sys.argv[2]
 headless = sys.argv[3] == 'true'
 print('Scraping reviews for author', authorId, ', URL', url, ', headless: ', headless)
+print('selenium version: ', selenium.__version__)
+print('webdriver version: ', webdriver.__version__)
 
 options = Options()
 options.headless = headless
@@ -24,6 +26,7 @@ options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--remote-debugging-port=9222')
 driver = webdriver.Chrome(options=options)
+print('driver capabilities: ', driver.capabilities)
 driver.get(url)
 time.sleep(3) # could convert this to a "wait until" thing later
 

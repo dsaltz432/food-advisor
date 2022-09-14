@@ -43,7 +43,7 @@ const scrapeReviewsUsingPythonScriptAndGenerateJsonFile = async (id: string, url
         printPythonResults(results);
         reject(err);
       } else {
-        // printPythonResults(results);
+        printPythonResults(results);
         resolve();
       }
     });
