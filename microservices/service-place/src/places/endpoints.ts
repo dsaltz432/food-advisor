@@ -15,13 +15,10 @@ export const GetPlacesNearby = async (req: Request, res: Response) => {
 
 export const ProcessPlacesNearby = async (req: Request, res: Response) => {
   const { lat, lng, radius, keyword } = req.query;
-  await processPlacesNearby(
-    parseFloat(lat as string),
-    parseFloat(lng as string),
-    parseFloat(radius as string),
-    keyword as string
-  );
-  res.status(HTTP_STATUS_CODES.NO_CONTENT).json();
+
+  // don't wait - it can take a while
+  processPlacesNearby(parseFloat(lat as string), parseFloat(lng as string), parseFloat(radius as string), keyword as string);
+  res.status(HTTP_STATUS_CODES.OK).json({ status: 'processing' });
 };
 
 export const GetPlace = async (req: Request, res: Response) => {
