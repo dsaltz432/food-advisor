@@ -14,8 +14,8 @@ print('Scraping reviews for place', placeId, ', URL', url, ', headless: ', headl
 options = Options()
 options.headless = headless
 options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-options.add_argument('--remote-debugging-port=9222')
+# options.add_argument('--disable-dev-shm-usage')
+# options.add_argument('--remote-debugging-port=9222')
 driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(3) # could convert this to a "wait until" thing later

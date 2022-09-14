@@ -70,7 +70,7 @@ const processPendingAuthorReviews = async () => {
       // once we've accumulated enough authors, save them to the DB and accumulate the next batch
       authorsInBatch.push(author);
       if (authorsInBatch.length >= 5) {
-        const reviewsResponses = await pMap(authorsInBatch, processAuthorReviews, { concurrency: 5 });
+        const reviewsResponses = await pMap(authorsInBatch, processAuthorReviews, { concurrency: 1 });
         const authorUpdatesInBatch = [];
         const reviewsInsertArray = [];
         for (const { reviewsForAuthor, author } of reviewsResponses) {
@@ -95,7 +95,7 @@ const processPendingAuthorReviews = async () => {
     }
 
     if (authorsInBatch.length) {
-      const reviewsResponses = await pMap(authorsInBatch, processAuthorReviews, { concurrency: 5 });
+      const reviewsResponses = await pMap(authorsInBatch, processAuthorReviews, { concurrency: 1 });
       const authorUpdatesInBatch = [];
       const reviewsInsertArray = [];
       for (const { reviewsForAuthor, author } of reviewsResponses) {
