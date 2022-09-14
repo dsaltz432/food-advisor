@@ -1,7 +1,17 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/fifth-boulder-274618/service-place:$COMMIT_SHA', '--shm-size', '2g', '.']
+    args:
+      [
+        'build',
+        '-t',
+        'gcr.io/fifth-boulder-274618/service-place:$COMMIT_SHA',
+        '--shm-size',
+        '2g',
+        'microservices/service-place',
+        '-f',
+        'microservices/service-place/Dockerfile',
+      ]
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/fifth-boulder-274618/service-place:$COMMIT_SHA']
