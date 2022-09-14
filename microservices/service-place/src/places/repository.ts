@@ -77,6 +77,7 @@ const getAndPersistPlaces = async (lat: number, lng: number, radius: number, key
 
   if (missingRawPlaces.length) {
     const missingGooglePlaceIds = _.map(missingRawPlaces, 'place_id');
+    console.log(`Fetching ${missingGooglePlaceIds} places from Google.`);
     const urlToGooglePlaceIdMap = await fetchPlaceDetailsForPlaceIds(missingGooglePlaceIds);
 
     const missingPlaces = [];

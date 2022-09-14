@@ -15,7 +15,6 @@ export const GetPlacesNearby = async (req: Request, res: Response) => {
 
 export const ProcessPlacesNearby = async (req: Request, res: Response) => {
   const { lat, lng, radius, keyword } = req.query;
-  // await processPlacesNearby(40.799465, -73.966473, 250);
   await processPlacesNearby(
     parseFloat(lat as string),
     parseFloat(lng as string),
