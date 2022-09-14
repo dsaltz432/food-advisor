@@ -1,7 +1,6 @@
 import json
 import os
 import time
-import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -14,6 +13,7 @@ print('Scraping reviews for place', placeId, ', URL', url, ', headless: ', headl
 
 options = Options()
 options.headless = headless
+options.add_argument("--no-sandbox")
 driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(3) # could convert this to a "wait until" thing later
@@ -29,7 +29,7 @@ def get_total_expected_reviews_for_place():
     try:
         return get_int(elementText.split(" ")[0])
     except:
-        print('Unable to find total_expected_number_of_reviews. Assuming 0 reviews.', elementText)
+        # print('Unable to find total_expected_number_of_reviews. Assuming 0 reviews.', elementText)
         os._exit(0) # Exit with code 0 so it doesn't throw an error
 
 total_expected_number_of_reviews = get_total_expected_reviews_for_place()
@@ -67,8 +67,10 @@ while True:
 # Find all reviews that have the "More" button visible to expand the review text, and click each button to expand the text
 see_more_elements = driver.find_elements(By.CLASS_NAME, 'w8nwRe')
 for see_more_element in see_more_elements:
-    see_more_element.click()
-
+    try:
+        see_more_element.click()
+    except:
+        print('Error while clicking on see_more_element', placeId)
 
 
 def is_local_guide(guideData):
@@ -139,11 +141,11 @@ driver.close()
 
 numReviewsFound = len(review_objects)
 
-print('Scraping report: total_expected_number_of_reviews=', total_expected_number_of_reviews, ', numReviewsFound=', numReviewsFound)
+# print('Scraping report: total_expected_number_of_reviews=', total_expected_number_of_reviews, ', numReviewsFound=', numReviewsFound)
 
 # Sanity check
-if total_expected_number_of_reviews != numReviewsFound:
-    print('Sanity check failed! total_expected_number_of_reviews != numReviewsFound=')
+# if total_expected_number_of_reviews != numReviewsFound:
+    # print('Sanity check failed! total_expected_number_of_reviews != numReviewsFound=')
 
 
 # Save reviews to JSON file

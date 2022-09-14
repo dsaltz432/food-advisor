@@ -4,7 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
-import { HTTP_METHODS } from '../consts';
+import { HTTP_METHODS, HTTP_STATUS_CODES } from '../consts';
 import { getLogger } from './logger';
 const logger = getLogger('utilities.webapp');
 import { timeEndpoint, asyncFunctionHandler, globalErrorHandler, fileNotFoundHandler } from './middleware';
@@ -47,6 +47,8 @@ const registerEndpoint = (method: string, path: string, next: RequestHandler) =>
       throw new Error(`Unsupported http method [${method}]`);
   }
 };
+
+registerEndpoint(HTTP_METHODS.GET, '/health', async (_req, res) => res.status(HTTP_STATUS_CODES.OK).send('Up and running.'));
 
 const start = () => {
   app.use(globalErrorHandler);

@@ -1,7 +1,6 @@
 import json
 import os
 import time
-import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -15,6 +14,7 @@ print('Scraping reviews for author', authorId, ', URL', url, ', headless: ', hea
 
 options = Options()
 options.headless = headless
+options.add_argument("--no-sandbox")
 driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(3) # could convert this to a "wait until" thing later
@@ -26,23 +26,23 @@ def get_total_expected_reviews_for_place():
     try:
         elementText = driver.find_element(By.CLASS_NAME, 'Qha3nb').text
         numReviews = get_int(elementText.split(" ")[0])
-        print('numReviews =',numReviews)
+        # print('numReviews =',numReviews)
         return numReviews
     except:
-        print('Unable to find total_expected_number_of_reviews. Assuming 0 reviews.')
+        # print('Unable to find total_expected_number_of_reviews. Assuming 0 reviews.')
         return 0
 
 def get_total_expected_ratings_for_place():
     try:
         elementText = driver.find_element(By.CLASS_NAME, 'Qha3nb').text
         if "rating" not in elementText:
-            print('numRatings = 0')
+            # print('numRatings = 0')
             return 0
         numRatings = get_int(elementText.split('rating')[0].split(' ')[-2].strip())
-        print('numRatings =',numRatings)
+        # print('numRatings =',numRatings)
         return numRatings
     except:
-        print('Unable to find get_total_expected_rating_for_place. Assuming 0 ratings.')
+        # print('Unable to find get_total_expected_rating_for_place. Assuming 0 ratings.')
         return 0
 
 total_expected_number_of_reviews = get_total_expected_reviews_for_place()
@@ -95,7 +95,10 @@ while True:
 # Find all reviews that have the "More" button visible to expand the review text, and click each button to expand the text
 see_more_elements = driver.find_elements(By.CLASS_NAME, 'w8nwRe')
 for see_more_element in see_more_elements:
-    see_more_element.click()
+    try:
+        see_more_element.click()
+    except:
+        print('Error while clicking on see_more_element', authorId)
 
 
 def get_author_level():
@@ -106,23 +109,25 @@ def get_author_level():
             return get_int(levelTagPieces[1].strip())
         else:
             # this is a local guide with no reviews
-            return null
+            return
     except:
-        print('Unable to find get_author_level. Assuming level is null', url)
+        # print('Unable to find get_author_level. Assuming level is null', url)
+        return
 
 def get_author_points():
     try:
         points_span_elements = driver.find_elements(By.CLASS_NAME, 'VEEl9c')
         numSpans = len(points_span_elements)
         if numSpans == 0:
-            return null
+            return
         elif numSpans == 1:
             return get_int(points_span_elements[0].text.split(' ')[0].strip())
         else:
             print('Warning! Found multiple spans - not handled!')
-            return null
+            return
     except:
-        print('Unable to find get_author_points. Assuming points is null', url)
+        # print('Unable to find get_author_points. Assuming points is null', url)
+        return
 
 
 # Parse some info about this author which is consistent across all reviews
@@ -170,11 +175,11 @@ driver.close()
 
 numReviewsFound = len(review_objects)
 
-print('Scraping report: total_combined_reviews=', total_combined_reviews, ', numReviewsFound=', numReviewsFound)
+# print('Scraping report: total_combined_reviews=', total_combined_reviews, ', numReviewsFound=', numReviewsFound)
 
 # Sanity check
-if total_combined_reviews != numReviewsFound:
-    print('Sanity check failed! total_combined_reviews does not equal numReviewsFound')
+# if total_combined_reviews != numReviewsFound:
+#     print('Sanity check failed! total_combined_reviews does not equal numReviewsFound')
 
 
 # Save reviews to JSON file

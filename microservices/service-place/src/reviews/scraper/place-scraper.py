@@ -4,12 +4,12 @@ import time
 import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 
 
 if (len(sys.argv)) != 4:
-    print('Must pass in the authorId, url, and headless as cmd line arguments')
+    print('Must pass in the placeId, url, and headless as cmd line arguments')
     print(sys.argv)
     os._exit(1)
 
@@ -20,6 +20,7 @@ print('Scraping reviews for place', placeId, ', URL', url, ', headless: ', headl
 
 options = Options()
 options.headless = headless
+options.add_argument("--no-sandbox")
 driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(3) # could convert this to a "wait until" thing later
