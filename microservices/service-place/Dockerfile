@@ -10,10 +10,6 @@ FROM node:16-alpine
 WORKDIR /home
 COPY --from=buildStage /build .
 
-# run as non-root
-RUN adduser -D myuser
-USER myuser
-
 # install python for the web scraping. this could be moved into the build stage later for faster builds
 RUN apk add chromium chromium-chromedriver python3
 RUN python3 -m ensurepip
