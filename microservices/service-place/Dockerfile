@@ -1,12 +1,12 @@
 
 # build stage
-FROM node:16-alpine AS buildStage
+FROM node:16-alpine3.15 AS buildStage
 WORKDIR /build
 COPY . .
 RUN yarn && yarn compile
 
 # runtime stage
-FROM node:16-alpine
+FROM node:16-alpine3.15
 WORKDIR /home
 COPY --from=buildStage /build .
 

@@ -5,19 +5,31 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-
+import selenium
 
 authorId = 'd06a2f22-fbf6-46cf-8dba-dfc98570dece'
 url = 'https://www.google.com/maps/contrib/113025658953978089240/reviews?hl=en-US'
 headless = True
 print('Scraping reviews for author', authorId, ', URL', url, ', headless: ', headless)
+print('selenium version: ', selenium.__version__)
+print('webdriver version: ', webdriver.__version__)
+print('chrome: : ', selenium.webdriver.chrome)
 
 options = Options()
 options.headless = headless
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--remote-debugging-port=9222')
+
+caps = {}
+caps['browserName'] = 'firefox'
+caps['platform'] = 'Windows 10'
+caps['version'] = '92'
+# caps['build'] = my_testsname
+
+
 driver = webdriver.Chrome(options=options)
+print('driver capabilities: ', driver.capabilities)
 driver.get(url)
 time.sleep(3) # could convert this to a "wait until" thing later
 

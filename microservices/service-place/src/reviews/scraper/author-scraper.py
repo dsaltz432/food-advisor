@@ -19,6 +19,7 @@ headless = sys.argv[3] == 'true'
 print('Scraping reviews for author', authorId, ', URL', url, ', headless: ', headless)
 print('selenium version: ', selenium.__version__)
 print('webdriver version: ', webdriver.__version__)
+print('chrome: : ', selenium.webdriver.chrome)
 
 options = Options()
 options.headless = headless
