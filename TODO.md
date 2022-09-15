@@ -29,3 +29,9 @@
 // Unable to find location for author review. address [Bldg 5280 Pendleton Ave MS 46, Joint Base Lewis-McChord, WA 984331672]. reviewId: 092123dc-515b-4c67-80f8-a866ec27f8f8
 // Unable to find location for author review. address [914 Airport Center Rd, Allentown, PA 18107]. reviewId: 98bbe67b-b6e4-4331-96c6-60466d278b97
 // Unable to find location for author review. address [13803 Motley Rd, Bentonville, AR 72713]. reviewId: 925d3a7c-177f-4891-bd16-d24bc33f501a
+
+Optimizations:
+
+- Build up a list of places or authors to scrape and have the script scrape each one. Save file with the output for all authors or places
+- This will be much more efficient since creating the driver is inefficient
+- Currently have an issue scraping multiple things at once within the same cloud function, so this would solve that.
