@@ -1,5 +1,3 @@
-# This is the base image used: https://github.com/nodejs/docker-node/blob/9e9c0ecbd938e672add198b3cbbb2ab7704f6970/16/alpine3.15/Dockerfile
-
 # build stage
 FROM node:16-alpine3.15 AS buildStage
 WORKDIR /build
