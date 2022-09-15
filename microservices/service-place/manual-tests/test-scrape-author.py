@@ -13,20 +13,12 @@ headless = True
 print('Scraping reviews for author', authorId, ', URL', url, ', headless: ', headless)
 print('selenium version: ', selenium.__version__)
 print('webdriver version: ', webdriver.__version__)
-print('chrome: : ', selenium.webdriver.chrome)
 
 options = Options()
 options.headless = headless
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--remote-debugging-port=9222')
-
-caps = {}
-caps['browserName'] = 'firefox'
-caps['platform'] = 'Windows 10'
-caps['version'] = '92'
-# caps['build'] = my_testsname
-
 
 driver = webdriver.Chrome(options=options)
 print('driver capabilities: ', driver.capabilities)

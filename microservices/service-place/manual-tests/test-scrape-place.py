@@ -5,11 +5,14 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+import selenium
 
 placeId = '6b4863ae-3180-4f4d-8dd5-3f04821ee9f8'
 url = 'https://maps.google.com/?cid=6094218779089539791'
 headless = True
 print('Scraping reviews for place', placeId, ', URL', url, ', headless: ', headless)
+print('selenium version: ', selenium.__version__)
+print('webdriver version: ', webdriver.__version__)
 
 options = Options()
 options.headless = headless
@@ -17,6 +20,7 @@ options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--remote-debugging-port=9222')
 driver = webdriver.Chrome(options=options)
+print('driver capabilities: ', driver.capabilities)
 driver.get(url)
 time.sleep(3) # could convert this to a "wait until" thing later
 

@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import selenium
+import platform
 
 if (len(sys.argv)) != 4:
     print('Must pass in the authorId, url, and headless as cmd line arguments')
@@ -20,6 +21,7 @@ print('Scraping reviews for author', authorId, ', URL', url, ', headless: ', hea
 print('selenium version: ', selenium.__version__)
 print('webdriver version: ', webdriver.__version__)
 print('chrome: : ', selenium.webdriver.chrome)
+print('OS: ', platform.platform())
 
 options = Options()
 options.headless = headless
