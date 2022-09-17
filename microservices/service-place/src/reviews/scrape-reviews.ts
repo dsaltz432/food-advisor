@@ -1,16 +1,12 @@
-// import path from 'path';
-// import { PythonShell } from 'python-shell';
-// import { createUUID, deleteFile, getDataFromJsonFile } from '../../core/utils';
-import { createUUID } from '../../core/utils';
-import { IReview } from '../entities/IReview';
-import { IRawReview } from '../entities/IRawReview';
-import { IPlace } from '../../places/entities/IPlace';
-import { IAuthor } from '../entities/IAuthor';
-import { IRawAuthor } from '../entities/IRawAuthor';
-import { HTTP_METHODS, REVIEW_SOURCES } from '../../consts';
+import { createUUID } from '../core/utils';
+import { IReview } from './entities/IReview';
+import { IRawReview } from './entities/IRawReview';
+import { IPlace } from '../places/entities/IPlace';
+import { IAuthor } from './entities/IAuthor';
+import { IRawAuthor } from './entities/IRawAuthor';
+import { HTTP_METHODS, REVIEW_SOURCES } from '../consts';
 import axios, { AxiosRequestConfig } from 'axios';
 
-// const SCRAPE_HEADLESS = process.env.SCRAPE_HEADLESS === 'true';
 const SCRAPE_SERVICE_URL = process.env.SCRAPE_SERVICE_URL;
 
 export const scrapeReviewsForPlace = async (place: IPlace, googleMapsUrl: string) => {
@@ -66,34 +62,6 @@ const getRawAuthorReviewsFromScrapeService = async (
 
   return { rawReviews, rawAuthor };
 };
-
-// const scrapeReviewsUsingPythonScriptAndGenerateJsonFile = async (id: string, url: string, pathToPythonScraper: string) => {
-//   const pythonOptions = {
-//     pythonOptions: ['-u'],
-//     args: [id, url, SCRAPE_HEADLESS.toString()],
-//   };
-
-//   await new Promise<void>((resolve, reject) => {
-//     PythonShell.run(pathToPythonScraper, pythonOptions, function (err, results) {
-//       if (err) {
-//         printPythonResults(results);
-//         reject(err);
-//       } else {
-//         printPythonResults(results);
-//         resolve();
-//       }
-//     });
-//   });
-// };
-
-// const printPythonResults = (results?: Record<string, unknown>[]) => {
-//   if (results && results.length) {
-//     console.log('Results from python scraper:');
-//     for (const result of results) {
-//       console.log(`### ${result}`);
-//     }
-//   }
-// };
 
 const getPlaceReviewsFromRawResults = (place: IPlace, rawReviews: IRawReview[]) => {
   const reviews: IReview[] = [];

@@ -33,7 +33,6 @@
     "morgan": "^1.10.0",
     "p-map": "^4.0.0",
     "puppeteer": "^15.5.0",
-    "python-shell": "^3.0.1",
     "uuidv4": "^6.2.11",
     "zipcodes": "^8.0.0"
   },

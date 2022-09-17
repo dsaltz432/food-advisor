@@ -5,7 +5,7 @@ import { AuthorSchema, IAuthor } from './entities/IAuthor';
 import { IReview, ReviewSchema } from './entities/IReview';
 import { IReviewHistory, ReviewHistorySchema } from './entities/IReviewHistory';
 import { IPlace, PlaceSchema } from '../places/entities/IPlace';
-import { scrapeReviewsForAuthor, scrapeReviewsForPlace } from './scraper/scrape-reviews';
+import { scrapeReviewsForAuthor, scrapeReviewsForPlace } from './scrape-reviews';
 import { createUUID, getBulkInsertsForArray } from '../core/utils';
 import { AUTHOR_STATUSES, REVIEW_SOURCES } from '../consts';
 import { persistLocationStatsOnPlaceReviews, getCleanedAddress, getLocationFromAddress } from './geocode-reviews';
