@@ -63,7 +63,7 @@ def runScraperForAuthor(authorId, url, headless):
         response_json = {}
         response_json['author'] = {}
         response_json['reviews'] = []
-        return []
+        return response_json
 
     def get_scrollable_element():
         try:
@@ -195,10 +195,3 @@ def runScraperForAuthor(authorId, url, headless):
     response_json['author'] = author_object
     response_json['reviews'] = review_objects
     return response_json
-
-
-    # print('Scraping report: total_combined_reviews=', total_combined_reviews, ', numReviewsFound=', numReviewsFound)
-
-    # Sanity check
-    # if total_combined_reviews != numReviewsFound:
-    #     print('Sanity check failed! total_combined_reviews does not equal numReviewsFound')
