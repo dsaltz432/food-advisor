@@ -1,63 +1,99 @@
-import path from 'path';
-import { PythonShell } from 'python-shell';
-import { createUUID, deleteFile, getDataFromJsonFile } from '../../core/utils';
+// import path from 'path';
+// import { PythonShell } from 'python-shell';
+// import { createUUID, deleteFile, getDataFromJsonFile } from '../../core/utils';
+import { createUUID } from '../../core/utils';
 import { IReview } from '../entities/IReview';
 import { IRawReview } from '../entities/IRawReview';
 import { IPlace } from '../../places/entities/IPlace';
 import { IAuthor } from '../entities/IAuthor';
 import { IRawAuthor } from '../entities/IRawAuthor';
-import { REVIEW_SOURCES } from '../../consts';
+import { HTTP_METHODS, REVIEW_SOURCES } from '../../consts';
+import axios, { AxiosRequestConfig } from 'axios';
 
-const SCRAPE_HEADLESS = process.env.SCRAPE_HEADLESS === 'true';
+// const SCRAPE_HEADLESS = process.env.SCRAPE_HEADLESS === 'true';
+const SCRAPE_SERVICE_URL = process.env.SCRAPE_SERVICE_URL;
 
 export const scrapeReviewsForPlace = async (place: IPlace, googleMapsUrl: string) => {
-  const pathToPythonScraper = path.join(process.cwd(), 'src/reviews/scraper/place-scraper.py');
-  await scrapeReviewsUsingPythonScriptAndGenerateJsonFile(place._id, googleMapsUrl, pathToPythonScraper);
-  const filePath = path.join(process.cwd(), `src/reviews/scraper/${place._id}-place.json`);
-  const rawResults = getDataFromJsonFile(filePath);
-  const rawReviews: IRawReview[] = rawResults.reviews;
-  deleteFile(filePath); // delete the JSON file now that we've grabbed the data
+  const rawReviews = await getRawPlaceReviewsFromScrapeService(place, googleMapsUrl);
   return getPlaceReviewsFromRawResults(place, rawReviews);
 };
 
 export const scrapeReviewsForAuthor = async (authorStub: IAuthor, authorUrl: string) => {
-  const pathToPythonScraper = path.join(process.cwd(), 'src/reviews/scraper/author-scraper.py');
-  await scrapeReviewsUsingPythonScriptAndGenerateJsonFile(authorStub._id, authorUrl, pathToPythonScraper);
-  const filePath = path.join(process.cwd(), `src/reviews/scraper/${authorStub._id}-author.json`);
-  const rawResults = getDataFromJsonFile(filePath);
-  const rawAuthor: IRawAuthor = rawResults.author;
-  const rawReviews: IRawReview[] = rawResults.reviews;
-  deleteFile(filePath); // delete the JSON file now that we've grabbed the data
+  const { rawReviews, rawAuthor } = await getRawAuthorReviewsFromScrapeService(authorStub, authorUrl);
   return getAuthorReviewsFromRawResults(authorStub, rawAuthor, rawReviews);
 };
 
-const scrapeReviewsUsingPythonScriptAndGenerateJsonFile = async (id: string, url: string, pathToPythonScraper: string) => {
-  const pythonOptions = {
-    pythonOptions: ['-u'],
-    args: [id, url, SCRAPE_HEADLESS.toString()],
+const getRawPlaceReviewsFromScrapeService = async (place: IPlace, googleMapsUrl: string): Promise<IRawReview[]> => {
+  const requestConfig: AxiosRequestConfig = {
+    method: HTTP_METHODS.POST,
+    url: `${SCRAPE_SERVICE_URL}/v1/scraper/places/${place._id}`,
+    headers: {},
+    data: {
+      googleMapsUrl,
+    },
   };
 
-  await new Promise<void>((resolve, reject) => {
-    PythonShell.run(pathToPythonScraper, pythonOptions, function (err, results) {
-      if (err) {
-        printPythonResults(results);
-        reject(err);
-      } else {
-        printPythonResults(results);
-        resolve();
-      }
-    });
-  });
+  const results = await axios(requestConfig);
+
+  if (!results || !results.data) {
+    throw new Error(`Error fetching place reviews from scrape-service. Result is null`);
+  }
+
+  return results.data as unknown as IRawReview[];
 };
 
-const printPythonResults = (results?: Record<string, unknown>[]) => {
-  if (results && results.length) {
-    console.log('Results from python scraper:');
-    for (const result of results) {
-      console.log(`### ${result}`);
-    }
+const getRawAuthorReviewsFromScrapeService = async (
+  author: IAuthor,
+  authorUrl: string
+): Promise<{ rawReviews: IRawReview[]; rawAuthor: IRawAuthor }> => {
+  const requestConfig: AxiosRequestConfig = {
+    method: HTTP_METHODS.POST,
+    url: `${SCRAPE_SERVICE_URL}/v1/scraper/authors/${author._id}`,
+    headers: {},
+    data: {
+      authorUrl,
+    },
+  };
+
+  const results = (await axios(requestConfig)) as any;
+
+  if (!results || !results.data || !results?.data?.author || !results?.data?.reviews) {
+    throw new Error(`Error fetching author reviews from scrape-service. Result is null`);
   }
+
+  const rawReviews = results?.data.reviews as IRawReview[];
+  const rawAuthor = results?.data.author as IRawAuthor;
+
+  return { rawReviews, rawAuthor };
 };
+
+// const scrapeReviewsUsingPythonScriptAndGenerateJsonFile = async (id: string, url: string, pathToPythonScraper: string) => {
+//   const pythonOptions = {
+//     pythonOptions: ['-u'],
+//     args: [id, url, SCRAPE_HEADLESS.toString()],
+//   };
+
+//   await new Promise<void>((resolve, reject) => {
+//     PythonShell.run(pathToPythonScraper, pythonOptions, function (err, results) {
+//       if (err) {
+//         printPythonResults(results);
+//         reject(err);
+//       } else {
+//         printPythonResults(results);
+//         resolve();
+//       }
+//     });
+//   });
+// };
+
+// const printPythonResults = (results?: Record<string, unknown>[]) => {
+//   if (results && results.length) {
+//     console.log('Results from python scraper:');
+//     for (const result of results) {
+//       console.log(`### ${result}`);
+//     }
+//   }
+// };
 
 const getPlaceReviewsFromRawResults = (place: IPlace, rawReviews: IRawReview[]) => {
   const reviews: IReview[] = [];

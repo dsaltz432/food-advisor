@@ -1,8 +1,7 @@
-from re import U
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 import os
-from place_scraper import scrapePlace
-
+from scrapers.place_scraper import runScraperForPlace
+from scrapers.author_scraper import runScraperForAuthor
 
 app = Flask(__name__)
 
@@ -10,19 +9,21 @@ app = Flask(__name__)
 def health():
     return 'service-scrape is up and running'
 
-@app.route("/v1/scraper/places/<placeId>", methods=["GET", "POST"])
-def processScrapedPlace(placeId):
-    # placeId is 1318c9bd-eec9-4817-b80f-0dad634436e8
-    url = 'https://maps.google.com/?cid=4815629165680951502'
+@app.route("/v1/scraper/places/<placeId>", methods=["POST"])
+def scrapePlace(placeId):
+    data = request.get_json()
+    url = data['googleMapsUrl']
     headless = True
-    if request.method == 'POST':
-        print('Starting to scrape place: ', placeId)
-        results = scrapePlace(placeId, url, headless)
-        print(results)
-        return "status: scraping"
-    else:
-        print('Getting scraped data for place: ', placeId)
-        abort(404)
+    results = runScraperForPlace(placeId, url, headless)
+    return jsonify(results)
+
+@app.route("/v1/scraper/authors/<authorId>", methods=["POST"])
+def scrapeAuthor(authorId):
+    data = request.get_json()
+    url = data['authorUrl']
+    headless = True
+    results = runScraperForAuthor(authorId, url, headless)
+    return jsonify(results)
 
 
 if __name__ == "__main__":

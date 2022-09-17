@@ -1,22 +1,23 @@
-import json
-import os
 import time
-import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-import selenium
-import platform
-# from webdriver_manager.chrome import ChromeDriverManager
+# import selenium
+# import platform
 
-def scrapePlace(placeId, url, headless): 
+def get_int(num):
+    return int(num.replace(',', ''))
 
-    print('Scraping reviews for placeId', placeId, ', URL', url, ', headless: ', headless)
-    print('selenium version: ', selenium.__version__)
-    print('webdriver version: ', webdriver.__version__)
-    print('chrome: : ', selenium.webdriver.chrome)
-    print('OS: ', platform.platform())
+def runScraperForPlace(placeId, url, headless): 
+
+    print('Starting to scrape reviews for place', placeId)
+
+    # print('Scraping reviews for placeId', placeId, ', URL', url, ', headless: ', headless)
+    # print('selenium version: ', selenium.__version__)
+    # print('webdriver version: ', webdriver.__version__)
+    # print('chrome: : ', selenium.webdriver.chrome)
+    # print('OS: ', platform.platform())
 
     options = Options()
     options.headless = headless
@@ -25,25 +26,22 @@ def scrapePlace(placeId, url, headless):
     options.add_argument('--remote-debugging-port=9222')
     # driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
     driver = webdriver.Chrome(options=options)
-    print('driver capabilities: ', driver.capabilities)
+    # print('driver capabilities: ', driver.capabilities)
     driver.get(url)
     time.sleep(3) # could convert this to a "wait until" thing later
 
     # showReviewsXPath = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[2]/div/div[1]/span[1]/span/span[1]/span[2]/span[1]/button'
     showReviewsXPath = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[2]/div/div[1]/div[2]/span[2]/span[1]/button'
 
-    def get_int(num):
-        return int(num.replace(',', ''))
+    # def get_total_expected_reviews_for_place():
+    #     elementText = driver.find_element(By.XPATH, showReviewsXPath).text
+    #     try:
+    #         return get_int(elementText.split(" ")[0])
+    #     except:
+    #         # print('Unable to find total_expected_number_of_reviews. Assuming 0 reviews.', elementText)
+    #         os._exit(0) # Exit with code 0 so it doesn't throw an error
 
-    def get_total_expected_reviews_for_place():
-        elementText = driver.find_element(By.XPATH, showReviewsXPath).text
-        try:
-            return get_int(elementText.split(" ")[0])
-        except:
-            # print('Unable to find total_expected_number_of_reviews. Assuming 0 reviews.', elementText)
-            os._exit(0) # Exit with code 0 so it doesn't throw an error
-
-    total_expected_number_of_reviews = get_total_expected_reviews_for_place()
+    # total_expected_number_of_reviews = get_total_expected_reviews_for_place()
 
     # Then click on the button to load the All Reviews page
     driver.find_element(By.XPATH, showReviewsXPath).click()
@@ -145,13 +143,16 @@ def scrapePlace(placeId, url, headless):
         review_object['text'] = reviewText
 
         review_objects.append(review_object)
+        
+        if len(review_objects) % 50 == 0:
+            print('Found', len(review_objects), 'reviews for place', placeId)
 
 
     driver.close()
 
 
     numReviewsFound = len(review_objects)
-    print('Found ', numReviewsFound, 'reviews. Finished.')
+    print('Found', numReviewsFound, 'reviews for place', placeId, 'Finished scraping place.')
     return review_objects
 
     # print('Scraping report: total_expected_number_of_reviews=', total_expected_number_of_reviews, ', numReviewsFound=', numReviewsFound)
@@ -159,16 +160,4 @@ def scrapePlace(placeId, url, headless):
     # Sanity check
     # if total_expected_number_of_reviews != numReviewsFound:
         # print('Sanity check failed! total_expected_number_of_reviews != numReviewsFound=')
-
-
-    # Save reviews to JSON file
-
-    # fileName = placeId + '-place.json'
-    # pathToJsonFile = os.path.join(os.path.dirname(__file__), fileName)
-
-    # with open(pathToJsonFile, 'w', encoding='utf-8') as f:
-    #     response_json = {}
-    #     response_json['reviews'] = review_objects
-    #     json.dump(response_json, f, ensure_ascii=False, indent=4)
-    #     print('Finished saving', numReviewsFound, 'reviews to file', pathToJsonFile)
 
