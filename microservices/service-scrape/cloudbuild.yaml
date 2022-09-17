@@ -1,0 +1,32 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'gcr.io/fifth-boulder-274618/service-scrape:$COMMIT_SHA',
+        '--shm-size',
+        '2g',
+        'microservices/service-scrape',
+        '-f',
+        'microservices/service-scrape/Dockerfile',
+      ]
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/fifth-boulder-274618/service-scrape:$COMMIT_SHA']
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'service-scrape'
+      - '--image'
+      - 'gcr.io/fifth-boulder-274618/service-scrape:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+images:
+  - gcr.io/fifth-boulder-274618/service-scrape:$COMMIT_SHA
