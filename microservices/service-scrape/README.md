@@ -1,5 +1,9 @@
 # service-scrape
 
+## References
+
+Referenced this guide when making this service: https://cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-python-service
+
 ## Set up & Installation
 
 ### 1 Clone the git repo and create a virtual environment

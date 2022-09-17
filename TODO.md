@@ -35,3 +35,12 @@ Optimizations:
 - Build up a list of places or authors to scrape and have the script scrape each one. Save file with the output for all authors or places
 - This will be much more efficient since creating the driver is inefficient
 - Currently have an issue scraping multiple things at once within the same cloud function, so this would solve that.
+
+## TODO after breaking out service-scrape
+
+- Clean up service-place. Get rid of all the python/scraping stuff
+- The console log that prints number of reviews could take into account both totalReviews and totalRatings
+- Resiliency against a single scraping request failing
+- Only build/deploy the service that actually changes. Right now a push to main will build/deploy both services
+- Test scaling up number of scraping jobs running at a one time
+- Potentially add some data in memory for service-scrape and return a "current status" for a scrape job

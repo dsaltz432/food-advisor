@@ -60,7 +60,10 @@ def runScraperForAuthor(authorId, url, headless):
 
     if total_combined_reviews == 0:
         print('No reviews, so ending here', url)
-        os._exit(0) # Exit with code 0 so it doesn't throw an error
+        response_json = {}
+        response_json['author'] = {}
+        response_json['reviews'] = []
+        return []
 
     def get_scrollable_element():
         try:
