@@ -42,7 +42,7 @@ const processAllPlaceReviews = async (placeIds: string[]) => {
     });
   }
 
-  await pMap(placeAndReviewHistories, processPlaceReviews, { concurrency: 5 });
+  await pMap(placeAndReviewHistories, processPlaceReviews, { concurrency: 1 });
 };
 
 const processPendingAuthorReviews = async () => {
