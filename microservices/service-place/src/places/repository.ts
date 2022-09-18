@@ -31,6 +31,8 @@ export const processPlacesNearby = async (lat: number, lng: number, radius: numb
 
   const placeIds = _.map(filteredPlaces, '_id');
   await processReviewsForPlaces(placeIds);
+
+  console.log('Finished processing places nearby');
 };
 
 export const getPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {

@@ -294,7 +294,9 @@ The `--shm-size='2g'` option is specified to allow for enough memory for seleniu
 2. docker push gcr.io/fifth-boulder-274618/service-place:fa8be899e98363b5c8e2e57deb0882c8133d8147
 3. gcloud run deploy service-place --image gcr.io/fifth-boulder-274618/service-place:fa8be899e98363b5c8e2e57deb0882c8133d8147 --region us-central1 --platform managed
 
-Linux versions:
-uname -a
-uname -srm
-cat /proc/version
+## Centers
+
+lng: 40.802318
+lat: -73.967773
+radius: 200
+

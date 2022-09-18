@@ -58,12 +58,15 @@ const processPendingAuthorReviews = async () => {
   // let pendingAuthors: IAuthor[] = await authorModel
   //   .find({ status: AUTHOR_STATUSES.PENDING, googleAuthorId: { $in: googleAuthorIds } })
   //   .limit(20);
+  const skippedAuthorIds = [];
   let pendingAuthors: IAuthor[] = await authorModel.find({ status: AUTHOR_STATUSES.PENDING }).limit(20);
 
   while (pendingAuthors.length) {
     for (const author of pendingAuthors) {
       if (skipAuthorIds.includes(author._id)) {
         // TODO: these authors have parsing issues that need further investigation
+        // remove this author from the pendingAuthors array to avoid looping forever
+        skippedAuthorIds.push(author._id);
         continue;
       }
 
@@ -118,7 +121,7 @@ const processPendingAuthorReviews = async () => {
       console.log(`Processed ${totalReviewsProcessed} reviews from ${totalAuthorsProcessed} authors. Finished processing.`);
     }
     // fetch the next 20 pending authors
-    pendingAuthors = await authorModel.find({ status: AUTHOR_STATUSES.PENDING }).limit(20);
+    pendingAuthors = await authorModel.find({ status: AUTHOR_STATUSES.PENDING, _id: { $nin: skippedAuthorIds } }).limit(20);
     // pendingAuthors = await authorModel
     //   .find({ status: AUTHOR_STATUSES.PENDING, googleAuthorId: { $in: googleAuthorIds } })
     //   .limit(20);
@@ -143,6 +146,9 @@ const processPlaceReviews = async (placeAndReviewHistory: PlaceAndReviewHistory)
 
   // if we already have a reviewHistory, it means we've already scraped this place and we can return early
   if (reviewHistory || userRatingsTotal === 0) {
+    if (reviewHistory) {
+      console.log(`Already scraped place [${placeId}] googleMapsUrl [${googleMapsUrl}]`);
+    }
     return;
   }
   console.log(`Scraping ${userRatingsTotal} place reviews for [${name}], placeId [${placeId}], googleMapsUrl [${googleMapsUrl}]`);
