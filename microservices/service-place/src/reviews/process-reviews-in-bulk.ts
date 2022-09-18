@@ -148,29 +148,23 @@ const processPlaceReviews = async (placeAndReviewHistory: PlaceAndReviewHistory)
   console.log(`Scraping ${userRatingsTotal} place reviews for [${name}], placeId [${placeId}], googleMapsUrl [${googleMapsUrl}]`);
   const response = await scrapeReviewsForPlace(place, googleMapsUrl);
 
-  const authorGoogleIdsSet = new Set();
-  for (const review of response.reviews) {
-    authorGoogleIdsSet.add(review.googleAuthorId);
-  }
   const existingAuthors: IAuthor[] = await authorModel.find({
-    authorGoogleId: { $in: Array.from(authorGoogleIdsSet) },
+    googleAuthorId: { $in: _.map(response.reviews, 'googleAuthorId') },
   });
-  const existingAuthorsMap: Record<string, IAuthor> = _.keyBy(existingAuthors, 'authorGoogleId');
+  const existingAuthorsMap: Record<string, IAuthor> = _.keyBy(existingAuthors, 'googleAuthorId');
 
   const authorStubs: IAuthor[] = [];
   for (const review of response.reviews) {
     const existingAuthor = existingAuthorsMap[review.googleAuthorId];
-    if (existingAuthor) {
-      if (!review.authorId) {
-        // update the review with the existing authorId
-        review.authorId = existingAuthor._id;
-      }
-    } else {
+    // only process this author if we don't already have this author in our system
+    if (!existingAuthor) {
       // create the new author and then update the review with the new authorId
       authorStubs.push(generateNewAuthorStub(review));
     }
   }
 
+  // we save all reviews so we can associate them with this placeId
+  // TODO: add a step to de-dupe based on review text, etc. But for now I'm adding all of them into the system and can de-dupe later
   await persistPlaceReviews(place, response.reviews, authorStubs);
 };
 
