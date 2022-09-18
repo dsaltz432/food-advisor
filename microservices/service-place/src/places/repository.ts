@@ -30,7 +30,7 @@ export const processPlacesNearby = async (lat: number, lng: number, radius: numb
   const filteredPlaces = filterPlaces(places);
 
   const placeIds = _.map(filteredPlaces, '_id');
-  git await processReviewsForPlaces(placeIds);
+  await processReviewsForPlaces(placeIds);
 
   console.log('Finished processing places nearby');
 };
