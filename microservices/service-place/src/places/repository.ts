@@ -51,7 +51,8 @@ export const getPlacesNearby = async (lat: number, lng: number, radius: number, 
 
 const filterPlaces = (places: IPlace[]) => {
   // TODO: make this a config
-  const PLACE_NAMES_TO_SKIP = ["McDonald's", 'Papa Johns Pizza', "Dunkin'", 'Ben & Jerry’s', 'Starbucks'];
+  // Malecon is giving the scraper trouble
+  const PLACE_NAMES_TO_SKIP = ["McDonald's", 'Papa Johns Pizza', "Dunkin'", 'Ben & Jerry’s', 'Starbucks', 'Malecon'];
   const filteredPlaces = [];
   for (const place of places) {
     // // for testing

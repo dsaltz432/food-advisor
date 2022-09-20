@@ -75,11 +75,11 @@ def runScraperForPlace(placeId, url, headless):
 
     # Find all reviews that have the "More" button visible to expand the review text, and click each button to expand the text
     see_more_elements = driver.find_elements(By.CLASS_NAME, 'w8nwRe')
-    for see_more_element in see_more_elements:
-        try:
+    try:
+        for see_more_element in see_more_elements:
             see_more_element.click()
-        except:
-            print('Error while clicking on see_more_element', placeId)
+    except:
+        print('Error while clicking on see_more_element', placeId)
 
 
     def is_local_guide(guideData):
