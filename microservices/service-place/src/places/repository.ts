@@ -23,9 +23,9 @@ export const getPlace = async (placeId: string) => {
 };
 
 export const processPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {
-  // const places = await getAndPersistPlaces(lat, lng, radius, keyword);
+  const places = await getAndPersistPlaces(lat, lng, radius, keyword);
   // temporarily just assume the DB has what we need
-  const places: IPlace[] = await placeModel.find();
+  // const places: IPlace[] = await placeModel.find();
 
   const filteredPlaces = filterPlaces(places);
 

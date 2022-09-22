@@ -74,9 +74,9 @@ var badGoogleAuthorIds = badAuthors.map(a => a.googleAuthorId);
 db.reviews.find({ _id: {$in: badAuthorIds  } }).count()
 db.reviews.find({ googleAuthorId: {$in: badGoogleAuthorIds }, source: 'placeScraper' }).count()
 db.reviews.find({ googleAuthorId: {$in: badGoogleAuthorIds }, source: 'authorScraper' }).count()
-db.reviews.deleteMany({ authorId: { $in: badAuthorIds } });
-db.reviews.deleteMany({ googleAuthorId: { $in: badGoogleAuthorIds } });
-db.authors.deleteMany({ _id: { $in: badAuthorIds } });
+// db.reviews.deleteMany({ authorId: { $in: badAuthorIds } });
+// db.reviews.deleteMany({ googleAuthorId: { $in: badGoogleAuthorIds } });
+// db.authors.deleteMany({ _id: { $in: badAuthorIds } });
 
 
 
