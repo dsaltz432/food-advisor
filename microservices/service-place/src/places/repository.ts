@@ -23,9 +23,9 @@ export const getPlace = async (placeId: string) => {
 };
 
 export const processPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {
-  const places = await getAndPersistPlaces(lat, lng, radius, keyword);
+  // const places = await getAndPersistPlaces(lat, lng, radius, keyword);
   // temporarily just assume the DB has what we need
-  // const places: IPlace[] = await placeModel.find();
+  const places: IPlace[] = await placeModel.find();
 
   const filteredPlaces = filterPlaces(places);
 
@@ -51,8 +51,7 @@ export const getPlacesNearby = async (lat: number, lng: number, radius: number, 
 
 const filterPlaces = (places: IPlace[]) => {
   // TODO: make this a config
-  // Malecon is giving the scraper trouble
-  const PLACE_NAMES_TO_SKIP = ["McDonald's", 'Papa Johns Pizza', "Dunkin'", 'Ben & Jerry’s', 'Starbucks', 'Malecon'];
+  const PLACE_NAMES_TO_SKIP = ["McDonald's", 'Papa Johns Pizza', "Dunkin'", 'Ben & Jerry’s', 'Starbucks'];
   const filteredPlaces = [];
   for (const place of places) {
     // // for testing

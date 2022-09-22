@@ -166,6 +166,8 @@ const processPlaceReviews = async (placeAndReviewHistory: PlaceAndReviewHistory)
     if (!existingAuthor) {
       // create the new author and then update the review with the new authorId
       authorStubs.push(generateNewAuthorStub(review));
+    } else {
+      console.log(`Already have googleAuthorId [${review.googleAuthorId}] in our system. Skipping.`);
     }
   }
 
