@@ -74,7 +74,7 @@ const fetchPlacesForType = async (baseUrl: string, urlForLocation: string): Prom
     const response = await fetchDataFromGoogleAPI(url);
 
     // based on the response, decide if we need to make additional requests
-    if (response && response.status === 200 && response.data.status === 'OK') {
+    if (response && response.status === 200 && ['OK', 'ZERO_RESULTS'].includes(response.data.status)) {
       // add the places to the full list
       allRawPlaces.push(...response.data.results);
 
@@ -129,7 +129,8 @@ const fetchDataFromGoogleAPI = async (url: string): Promise<AxiosResponse | null
     };
     return await axios(requestConfig);
   } catch (e) {
-    console.error(`Error while requesting nearby place: ${e}`);
+    console.error('Error while requesting nearby place');
+    console.error(e);
     return null;
   }
 };

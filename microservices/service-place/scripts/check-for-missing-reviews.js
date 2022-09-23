@@ -9,7 +9,7 @@ for (const place of places) {
     var historyNum = (history && history.numReviews) || 0;
 
 	if (place.userRatingsTotal > historyNum) {
-		printjson({ placeId, userRatingsTotal: place.userRatingsTotal, historyNum, numPlaceReviews, numAuthorReviews });
+		printjson({ placeId, userRatingsTotal: place.userRatingsTotal, historyNum, numPlaceReviews, numAuthorReviews, name: place.name });
         // db.places.deleteOne({ _id:placeId });
     	// db.reviewHistory.deleteOne({ placeId });
         // db.reviews.deleteMany({ placeId });
