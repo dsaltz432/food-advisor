@@ -14,10 +14,18 @@ export const GetPlacesNearby = async (req: Request, res: Response) => {
 };
 
 export const ProcessPlacesNearby = async (req: Request, res: Response) => {
-  const { lat, lng, radius, keyword } = req.query;
+  const { lat, lng, radius, keyword = null, fromDB: fromDBStr } = req.query;
+
+  const fromDB = fromDBStr === 'true';
 
   // don't wait - it can take a while
-  processPlacesNearby(parseFloat(lat as string), parseFloat(lng as string), parseFloat(radius as string), keyword as string);
+  processPlacesNearby(
+    parseFloat(lat as string),
+    parseFloat(lng as string),
+    parseFloat(radius as string),
+    keyword as string,
+    fromDB
+  );
   res.status(HTTP_STATUS_CODES.OK).json({ status: 'processing' });
 };
 

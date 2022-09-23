@@ -22,11 +22,16 @@ export const getPlace = async (placeId: string) => {
   return place;
 };
 
-export const processPlacesNearby = async (lat: number, lng: number, radius: number, keyword?: string) => {
-  const places = await getAndPersistPlaces(lat, lng, radius, keyword);
-  // temporarily just assume the DB has what we need
-  // const places: IPlace[] = await placeModel.find();
-
+export const processPlacesNearby = async (lat: number, lng: number, radius: number, keyword: string, fromDB: boolean) => {
+  let places: IPlace[] = [];
+  if (fromDB) {
+    // temporarily just assume the DB has what we need
+    console.log('Getting places from the DB');
+    places = await placeModel.find();
+  } else {
+    console.log('Getting places from Google');
+    places = await getAndPersistPlaces(lat, lng, radius, keyword);
+  }
   const filteredPlaces = filterPlaces(places);
 
   const placeIds = _.map(filteredPlaces, '_id');
